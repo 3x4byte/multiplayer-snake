@@ -12,9 +12,11 @@ server.listen(portnumber, function(){
 });
 
 //websocket shit
+/*
 const websocket_package = require("ws");
-const websocket_portnumber = 5001;
-const serverSocket = new websocket_package.Server({ port: websocket_portnumber});
+const websocket_portnumber = "ws://localhost:5001";
+const connection = new websocket_package.WebSocket(websocket_portnumber)
+//const serverSocket = new websocket_package.Server({ port: websocket_portnumber});
 let clientAmt = 0;
 
 //snkae shit
@@ -41,6 +43,8 @@ serverSocket.on("connection", function (socket) {
     }
 
 });
+
+ */
 
 function parseData(head, tail){
     ret = [];

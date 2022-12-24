@@ -2,8 +2,13 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
+/**
+ * Eye-Candy mapping of String OpCodes to Enums.
+ * Serves as out WS-API and is used to determine the way a  {@link WSServer.Message},
+ * more specifically a  {@link WSMessage} has to be handled by {@link WSServer.MessageHandler}
+ */
 enum OpCode implements WSServer.OpCode<String, OpCode> {
-    ZERO("0"),
+    ZERO("UNIQUE"),
     ;
 
     final String id;

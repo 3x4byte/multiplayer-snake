@@ -1,5 +1,12 @@
 import org.java_websocket.WebSocket;
 
+/**
+ * A Message Type used for abstraction of the data our WebSocket deals with.
+ * We expect the following StringFormat for incoming messages: OpCode-Data1-Data2-Data3 ...
+ * which is then broken up internally into: [OpCode, Data1, Data2, Data3...]
+ * and accessible via: {@link WSMessage#getOpcode} and {@link WSMessage#getMessage} whereas the latter
+ * also contains the OpCode at the 0 index.
+ */
 public class WSMessage implements WSServer.Message<WSMessage>{
 
     public static final String INFORMATION_DELIMITER = "-";

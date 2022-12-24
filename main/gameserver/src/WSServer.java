@@ -3,27 +3,36 @@ import org.java_websocket.handshake.ClientHandshake;
 import org.java_websocket.server.WebSocketServer;
 
 
+import javax.annotation.Nullable;
+import java.net.InetSocketAddress;
 import java.util.Optional;
 
+/**
+ * Manages WSConnections for our {@link GameServer}
+ * @param <T> the type of message used
+ */
 public class WSServer<T extends WSServer.Message<T>> extends WebSocketServer{
     private final MessageHandler<T> handler;
     private final T messageClass;
-    private OnConnectionOpenedListener<?> listener;
+    private ConnectionEventListener<?> connectionEventListener;
 
-    public WSServer(MessageHandler<T> handler, T messageClass){
+    public WSServer(InetSocketAddress address, MessageHandler<T> handler, T messageClass){
+        super(address);
         this.handler = handler;
         this.messageClass = messageClass;
     }
     @Override
     public void onOpen(WebSocket conn, ClientHandshake handshake) {
-        if (listener != null){
-            listener.apply(conn, handshake);
+        if (connectionEventListener != null){
+            connectionEventListener.apply(ConnectionEvent.OPENED, conn, handshake, null);
         }
     }
 
     @Override
     public void onClose(WebSocket conn, int code, String reason, boolean remote) {
-
+        if (connectionEventListener != null){
+            connectionEventListener.apply(ConnectionEvent.CLOSED, conn, null, reason);
+        }
     }
 
     @Override
@@ -41,9 +50,10 @@ public class WSServer<T extends WSServer.Message<T>> extends WebSocketServer{
 
     }
 
-    public void setOnConnectionOpenedListener(OnConnectionOpenedListener<?> listener){
-        this.listener = listener;
+    public void setOnConnectionEventListener(ConnectionEventListener<?> listener){
+        this.connectionEventListener = listener;
     }
+
 
     interface Message<T>{
         public OpCode<?, ?> getOpcode();
@@ -52,7 +62,7 @@ public class WSServer<T extends WSServer.Message<T>> extends WebSocketServer{
 
         /** Should parse conn and String message to a Message Obj*/
         public T parseToMessage(WebSocket conn, String message);
-        /** Should parse message content to a String*/
+        /** Should parse OpCode and message content to a String*/
         public String parseToString();
     }
 
@@ -65,8 +75,13 @@ public class WSServer<T extends WSServer.Message<T>> extends WebSocketServer{
         Optional<T> handle(T message);
     }
 
+    enum ConnectionEvent{
+        OPENED,
+        CLOSED;
+    }
+
     @FunctionalInterface
-    interface OnConnectionOpenedListener<T>{
-        T apply(WebSocket conn, ClientHandshake handshake);
+    interface ConnectionEventListener<T>{
+        T apply(ConnectionEvent event, WebSocket conn, @Nullable ClientHandshake handshake, @Nullable String reason);
     }
 }
