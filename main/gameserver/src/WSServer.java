@@ -37,12 +37,14 @@ public class WSServer<T extends WSServer.Message<T>> extends WebSocketServer{
 
     @Override
     public void onMessage(WebSocket conn, String message) {
-        handler.handle(messageClass.parseToMessage(conn, message)).ifPresent(response -> conn.send(response.parseToString()));
+        Optional<T> response = handler.handle(messageClass.parseToMessage(conn, message));
+        if (response.isPresent() && conn.isOpen()){
+            conn.send(response.get().parseToString());
+        }
     }
 
     @Override
     public void onError(WebSocket conn, Exception ex) {
-
     }
 
     @Override

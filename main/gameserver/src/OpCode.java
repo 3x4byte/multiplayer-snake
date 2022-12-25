@@ -4,11 +4,14 @@ import java.util.Optional;
 
 /**
  * Eye-Candy mapping of String OpCodes to Enums.
- * Serves as out WS-API and is used to determine the way a  {@link WSServer.Message},
+ * Serves as our WS-API and is used to determine the way a  {@link WSServer.Message},
  * more specifically a  {@link WSMessage} has to be handled by {@link WSServer.MessageHandler}
  */
 enum OpCode implements WSServer.OpCode<String, OpCode> {
     ZERO("UNIQUE"),
+    JOIN_LOBBY("JOIN"),
+    JOIN_FAILED("JOIN_FAILED"),
+    LEAVE_LOBBY("LEAVE")
     ;
 
     final String id;

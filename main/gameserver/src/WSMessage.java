@@ -14,9 +14,20 @@ public class WSMessage implements WSServer.Message<WSMessage>{
     private WebSocket connection;
     private String[] contents;
 
+    /**
+     * This Constructor will be used most of the time
+     */
     WSMessage(WebSocket connection, String[] contents){
         this.connection = connection;
         this.contents = contents;
+    }
+
+    /**
+     * Some Messages may just consist of an opcode
+     * This one is for building responses for the {@link GameServer.WSMessageHandler} that only need minimal information
+     */
+    WSMessage(OpCode opCode){
+        this.contents = new String[]{opCode.id};
     }
 
     WSMessage(){}

@@ -8,6 +8,9 @@ public class Player {
     public final WebSocket connection; //technically redundant
     public final int id;
 
+    public String subscribedToLobbyId;
+    public Game.GameData gameData; // is reset at every game start
+
     Player(WebSocket connection){
         this.id = playerCount++;
         this.connection = connection;
