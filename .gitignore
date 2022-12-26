@@ -1,0 +1,10 @@
+### IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr
+### Gradle ###
+.gradle
+generated
+build
+main/webserver/node_modules
