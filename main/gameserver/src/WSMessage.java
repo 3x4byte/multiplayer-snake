@@ -44,7 +44,7 @@ public class WSMessage implements WSServer.Message<WSMessage>{
 
     @Override
     public String parseToString() {
-        return null;
+        return String.join(INFORMATION_DELIMITER, contents);
     }
 
     @Override

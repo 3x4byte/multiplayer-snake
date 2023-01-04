@@ -115,6 +115,9 @@ public class GameServer {
         return Optional.empty();
     }
 
+    /**
+     * @return always empty optional
+     */
     public Optional<WSMessage> handleLeaveLobby(WSMessage message){
         Player player = players.get(message.getSender());
         //todo
