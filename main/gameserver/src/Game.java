@@ -9,7 +9,7 @@ public class Game {
     public static final float CYCLE_DURATION_MS = 1000f;
     public static final float TICKS_PER_CYCLE = 1f;
     public static final float TICK_DURATION = CYCLE_DURATION_MS / TICKS_PER_CYCLE;
-    public static final float SNAKE_SPEED = TICK_DURATION; // the snake speed equals the TICK_DURATION, which as of richt now is 1/s
+    public static final float SNAKE_SPEED = TICK_DURATION; // the snake speed equals the TICK_DURATION, which as of right now is 1/s
 
     public long lastUpdatedAt = Long.MIN_VALUE; //lobby will be updated as soon as it is created
     public final Object lastUpdatedAtRWMutex = new Object();

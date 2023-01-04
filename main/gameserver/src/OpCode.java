@@ -11,7 +11,11 @@ enum OpCode implements WSServer.OpCode<String, OpCode> {
     ZERO("UNIQUE"),
     JOIN_LOBBY("JOIN"),
     JOIN_FAILED("JOIN_FAILED"),
-    LEAVE_LOBBY("LEAVE")
+    LEAVE_LOBBY("LEAVE"),
+    UP("W"),
+    DOWN("S"),
+    LEFT("A"),
+    RIGHT("D")
     ;
 
     final String id;

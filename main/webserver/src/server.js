@@ -19,7 +19,7 @@ const connection = new websocket_package.WebSocket(websocket_portnumber)
 //const serverSocket = new websocket_package.Server({ port: websocket_portnumber});
 let clientAmt = 0;
 
-//snkae shit
+//snake shit
 let snake = []
 
 
