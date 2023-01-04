@@ -12,7 +12,7 @@ import java.util.concurrent.*;
  */
 public class GameServer {
     private final int PORT = 5001;
-    private boolean isRunning = true;
+    private boolean isRunning;
     private final WSServer<WSMessage> server;
     private final ConcurrentMap<WebSocket, Player> players = new ConcurrentHashMap<>(); //requires concurrent - thread safe access
     private final ConcurrentMap<String, Lobby> lobbies = new ConcurrentHashMap<>(); //maps lobby ids to lobbies
@@ -44,7 +44,13 @@ public class GameServer {
                     return handleJoinLobby(message);
                 case LEAVE_LOBBY:
                     return handleLeaveLobby(message);
+                case UP:
+                case DOWN:
+                case LEFT:
+                case RIGHT:
+                    return handlePlayerMove(message);
                 default:
+                    System.out.println("COULD NOT IDENTIFY DATA: " + Arrays.toString(message.getMessage()));
                     return Optional.empty();
             }
         }
@@ -59,8 +65,15 @@ public class GameServer {
         public Void apply(WSServer.ConnectionEvent event, WebSocket conn, @Nullable ClientHandshake handshake, @Nullable String reason) {
                 switch (event){
                     case OPENED: {
-                            players.put(conn, new Player(conn));
+                            Player p = new Player(conn);
+                            players.put(conn, p);
                             System.out.println("player: " + players.get(conn).id + " arrived");
+
+                            // todo only for lobby output testing
+                            Lobby l = new Lobby("A");
+                            System.out.println("Player joined" + l.join(p));
+                            l.startGame();
+                            lobbies.put("A", l);
                         break;
                     }
                     case CLOSED: {
@@ -79,13 +92,15 @@ public class GameServer {
      * This further decouples the individual Games from a fixed Server Tick Time.
      */
     public void run(){
-
+        this.isRunning = true;
         while (isRunning){
             for (Map.Entry<String, Lobby> lobbyEntry : lobbies.entrySet()) {
                 Lobby lobby = lobbyEntry.getValue();
                 long currentTime = System.currentTimeMillis();
                 synchronized (lobby.game.lastUpdatedAtRWMutex) {
                     if (lobby.game.state.equals(Game.State.RUNNING) && (currentTime - lobby.game.lastUpdatedAt) >= lobby.game.fastestSnakeSpeed) {
+                        lobby.game.lastUpdatedAt = currentTime;
+                        System.out.println("UPDATING LOBBY");
                         executorService.execute(lobby.game.update);
                     }
                 }
@@ -98,7 +113,7 @@ public class GameServer {
      */
     public static void main(String[] args) {
         GameServer gameServer = new GameServer();
-        //gameServer.run();
+        gameServer.run();
     }
 
 
@@ -116,11 +131,25 @@ public class GameServer {
     }
 
     /**
-     * @return always empty optional
+     * @return an error if the lobby could not be left, else nothing
      */
     public Optional<WSMessage> handleLeaveLobby(WSMessage message){
         Player player = players.get(message.getSender());
-        //todo
+        boolean leftLobbySuccess = lobbies.get(player.subscribedToLobbyId).leave(player);
+        player.subscribedToLobbyId = null;
+        if (! leftLobbySuccess){
+            return Optional.of(new WSMessage(OpCode.JOIN_FAILED));
+        }
+        return Optional.empty();
+    }
+
+
+    /**
+     * @return always empty optional
+     */
+    public Optional<WSMessage> handlePlayerMove(WSMessage message){
+        Player player = players.get(message.getSender());
+        player.snake.direction = message.getOpcode(); //gameData should not be null
         return Optional.empty();
     }
 

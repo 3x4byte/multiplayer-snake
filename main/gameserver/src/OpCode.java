@@ -15,7 +15,8 @@ enum OpCode implements WSServer.OpCode<String, OpCode> {
     UP("W"),
     DOWN("S"),
     LEFT("A"),
-    RIGHT("D")
+    RIGHT("D"),
+    PLAYER_POSITIONS("POSITIONS") //"POSITIONS-[[["ID"],["43","66"],["44","66"],["45","66"]]]"
     ;
 
     final String id;

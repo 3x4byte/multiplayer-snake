@@ -14,12 +14,13 @@ public class Lobby {
     }
 
     public void startGame(){
+        System.out.println("MAKING GAME FROM: " + members + " with length " + members.size());
         this.game = new Game(members);
     }
 
     public boolean join(Player player){
         synchronized (membersRWLock){
-            if (members.size() - maxLobbySize > 0){
+            if (maxLobbySize - members.size() > 0){
                 members.put(player.id, player);
                 return true;
             }

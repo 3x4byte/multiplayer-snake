@@ -82,6 +82,8 @@ public class WSServer<T extends WSServer.Message<T>> extends WebSocketServer{
         CLOSED;
     }
 
+
+
     @FunctionalInterface
     interface ConnectionEventListener<T>{
         T apply(ConnectionEvent event, WebSocket conn, @Nullable ClientHandshake handshake, @Nullable String reason);

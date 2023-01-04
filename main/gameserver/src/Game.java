@@ -1,5 +1,7 @@
+import java.util.Arrays;
 import java.util.Map;
-import java.util.concurrent.ConcurrentMap;
+import org.json.JSONArray;
+
 
 /**
  * The class that will progress a Game on a per-Lobby basis
@@ -11,9 +13,12 @@ public class Game {
     public static final float TICK_DURATION = CYCLE_DURATION_MS / TICKS_PER_CYCLE;
     public static final float SNAKE_SPEED = TICK_DURATION; // the snake speed equals the TICK_DURATION, which as of right now is 1/s
 
-    public long lastUpdatedAt = Long.MIN_VALUE; //lobby will be updated as soon as it is created
+    public static final int WORLD_WIDTH = 10;
+    public static final int WORLD_HEIGHT = WORLD_WIDTH;
+
+    public long lastUpdatedAt = 0; //lobby will be updated as soon as it is created
     public final Object lastUpdatedAtRWMutex = new Object();
-    public State state = State.STOPPED;
+    public State state = State.RUNNING;
     public final Map<Integer, Player> participants; // maps player IDs to Player Objects - in the future will allow to target actions from players to players
 
     // GAME DATA
@@ -22,12 +27,6 @@ public class Game {
     private long timeTillNextDeath;
     private Player currentlyLongest;
 
-    static class GameData{ //essentially the snake
-        public int length;
-        public float speedFactor = 1;
-        public int lives; //?
-
-    }
 
     /**
      * Will be called by a worker Thread of the GameServer to progress the game
@@ -35,9 +34,6 @@ public class Game {
     public Runnable update = new Runnable() {
         @Override
         public void run() {
-            synchronized (lastUpdatedAtRWMutex) {
-                lastUpdatedAt = System.currentTimeMillis();
-            }
             progress();
         }
     };
@@ -51,7 +47,7 @@ public class Game {
     Game(Map<Integer, Player> participants){
         this.participants = participants;
         for (Player player :participants.values()){
-            player.gameData = new GameData();
+            player.snake = new Snake(player.id);
         }
     }
 
@@ -59,10 +55,38 @@ public class Game {
      * Progress the lobby state by one tick
      * Holds the entire Games logic. After the current GameState is
      * determined updates all clients.
+     *
+     * all player state updates are handles as essentially round trip data - the players game is not extrapolated but updates only on websocket msg.
      */
     private void progress(){
-        //todo frage klären: round trip daten? -> bsp.: player -- turn l --> server -- update screen --> player
-        // we do not handle websocket requests here (this is done outside), but we need to update all participants
+        String[][][] positionalDataForUsers = new String[participants.size()][][];
+        int i = 0;
+        for (Map.Entry<Integer, Player> entrySet : participants.entrySet()){
+            Player player = entrySet.getValue();
+            System.out.println("UPDATING PLAYER " + player.id);
+            if (player.snake.lives > 0) {
+                /*
+                if (player.snake.collided) {
+                    //todo spawn snake in middle and subtract one live
+                } else {
+                    player.snake.move();
+                }
+
+                 */
+                player.snake.move();
+                positionalDataForUsers[i++] = player.snake.stringifySnake();
+            }
+        }
+
+        // send the positional data to all players
+        for (Map.Entry<Integer, Player> entrySet : participants.entrySet()){
+            Player player = entrySet.getValue();
+            JSONArray jsonArray = new JSONArray(positionalDataForUsers);
+            String[] msg = new String[]{OpCode.PLAYER_POSITIONS.id, jsonArray.toString()};
+            System.out.println("OUTGOING DATA TO USER: " + Arrays.toString(msg));
+            WSMessage message = new WSMessage(msg);
+            player.connection.send(message.parseToString());
+        }
     }
 
 

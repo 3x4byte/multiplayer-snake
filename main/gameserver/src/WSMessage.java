@@ -30,6 +30,14 @@ public class WSMessage implements WSServer.Message<WSMessage>{
         this.contents = new String[]{opCode.id};
     }
 
+    /**
+     * For sending longer messages containing more than just an opcode
+     * @param contentsIncludingOpcode : message array with the opcode in first place
+     */
+    WSMessage(String[] contentsIncludingOpcode){
+        this.contents = contentsIncludingOpcode;
+    }
+
     WSMessage(){}
 
     @Override

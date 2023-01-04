@@ -9,7 +9,7 @@ public class Player {
     public final int id;
 
     public String subscribedToLobbyId;
-    public Game.GameData gameData; // is reset at every game start
+    public Snake snake; // is reset at every game start
 
     Player(WebSocket connection){
         this.id = playerCount++;
