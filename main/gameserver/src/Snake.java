@@ -1,4 +1,5 @@
 import java.util.*;
+import java.util.logging.Level;
 
 public class Snake {
 
@@ -70,6 +71,28 @@ public class Snake {
             s[i++] = new String[]{c.xPos+"", c.yPos+""};
         }
         return s;
+    }
+
+    // todo eigentlich sollte das ein clientseitiger check sein!
+    public void changeDirection(OpCode direction){
+        switch (direction){
+            case UP:
+                if (!this.direction.equals(OpCode.DOWN)){
+                    this.direction = direction;
+                }
+            case DOWN:
+                if (!this.direction.equals(OpCode.DOWN)){
+                    this.direction = direction;
+                }
+            case LEFT:
+                if (!this.direction.equals(OpCode.DOWN)){
+                    this.direction = direction;
+                }
+            case RIGHT:
+                if (!this.direction.equals(OpCode.DOWN)){
+                    this.direction = direction;
+                }
+        }
     }
 
 

@@ -149,7 +149,7 @@ public class GameServer {
      */
     public Optional<WSMessage> handlePlayerMove(WSMessage message){
         Player player = players.get(message.getSender());
-        player.snake.direction = message.getOpcode(); //gameData should not be null
+        player.snake.changeDirection(message.getOpcode()); //gameData should not be null
         return Optional.empty();
     }
 
