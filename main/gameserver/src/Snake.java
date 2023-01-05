@@ -80,18 +80,22 @@ public class Snake {
                 if (!this.direction.equals(OpCode.DOWN)){
                     this.direction = direction;
                 }
+                break;
             case DOWN:
-                if (!this.direction.equals(OpCode.DOWN)){
+                if (!this.direction.equals(OpCode.UP)){
                     this.direction = direction;
                 }
+                break;
             case LEFT:
-                if (!this.direction.equals(OpCode.DOWN)){
+                if (!this.direction.equals(OpCode.RIGHT)){
                     this.direction = direction;
                 }
+                break;
             case RIGHT:
-                if (!this.direction.equals(OpCode.DOWN)){
+                if (!this.direction.equals(OpCode.LEFT)){
                     this.direction = direction;
                 }
+                break;
         }
     }
 
