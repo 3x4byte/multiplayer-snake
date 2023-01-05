@@ -8,7 +8,5 @@
 generated
 build
 main/webserver/node_modules
-### Others ###
-main/webserver/package-lock.json
 
 
