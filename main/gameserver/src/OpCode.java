@@ -9,6 +9,7 @@ import java.util.Optional;
  */
 enum OpCode implements WSServer.OpCode<String, OpCode> {
     ZERO("UNIQUE"),
+    CREATE_LOBBY("CREATE"),
     JOIN_LOBBY("JOIN"),
     JOIN_FAILED("JOIN_FAILED"),
     LEAVE_LOBBY("LEAVE"),

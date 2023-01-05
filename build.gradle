@@ -33,6 +33,9 @@ dependencies {
     implementation 'org.java-websocket:Java-WebSocket:1.5.3'
     implementation group: 'com.google.code.findbugs', name: 'jsr305', version: '3.0.2'
     implementation 'org.json:json:20220924'
+    implementation 'com.google.code.gson:gson:2.10'
+    implementation "org.slf4j:slf4j-simple:2.0.6"
+    testImplementation 'org.slf4j:slf4j-simple:2.0.6'
 }
 
 node{

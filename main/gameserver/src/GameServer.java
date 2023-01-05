@@ -19,7 +19,7 @@ public class GameServer {
 
     ExecutorService executorService = Executors.newFixedThreadPool(4);
     private GameServer(){
-        server = new WSServer<>(new InetSocketAddress(PORT), new WSMessageHandler(), new WSMessage());
+        server = new WSServer<WSMessage>(new InetSocketAddress(PORT), new WSMessageHandler(), WSMessage.class);
         server.setOnConnectionEventListener(new OnConnectionEvent());
         server.start();
     }
@@ -44,13 +44,13 @@ public class GameServer {
                     return handleJoinLobby(message);
                 case LEAVE_LOBBY:
                     return handleLeaveLobby(message);
-                case UP:
+                case UP: //intentional fall throughs
                 case DOWN:
                 case LEFT:
                 case RIGHT:
                     return handlePlayerMove(message);
                 default:
-                    System.out.println("COULD NOT IDENTIFY DATA: " + Arrays.toString(message.getMessage()));
+                    System.out.println("COULD NOT IDENTIFY DATA: " + message);
                     return Optional.empty();
             }
         }
@@ -124,7 +124,8 @@ public class GameServer {
      */
     public Optional<WSMessage> handleJoinLobby(WSMessage message){
         Player player = players.get(message.getSender());
-        if (! lobbies.get(message.getMessage()[1]).join(player)){
+        String[] msg = message.getContent(String[].class);
+        if (! lobbies.get(msg[1]).join(player)){
             return Optional.of(new WSMessage(OpCode.JOIN_FAILED));
         }
         return Optional.empty();

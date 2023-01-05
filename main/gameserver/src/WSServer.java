@@ -1,4 +1,9 @@
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import org.java_websocket.WebSocket;
+import org.java_websocket.WebSocketImpl;
+import org.java_websocket.WebSocketListener;
+import org.java_websocket.drafts.Draft;
 import org.java_websocket.handshake.ClientHandshake;
 import org.java_websocket.server.WebSocketServer;
 
@@ -11,12 +16,14 @@ import java.util.Optional;
  * Manages WSConnections for our {@link GameServer}
  * @param <T> the type of message used
  */
-public class WSServer<T extends WSServer.Message<T>> extends WebSocketServer{
+public class WSServer<T extends WSServer.Message> extends WebSocketServer{
+    private static final Gson gsonBuilder = new GsonBuilder().create();
+    private final Class<T> messageClass;
+
     private final MessageHandler<T> handler;
-    private final T messageClass;
     private ConnectionEventListener<?> connectionEventListener;
 
-    public WSServer(InetSocketAddress address, MessageHandler<T> handler, T messageClass){
+    public WSServer(InetSocketAddress address, MessageHandler<T> handler, Class<T> messageClass){
         super(address);
         this.handler = handler;
         this.messageClass = messageClass;
@@ -37,9 +44,14 @@ public class WSServer<T extends WSServer.Message<T>> extends WebSocketServer{
 
     @Override
     public void onMessage(WebSocket conn, String message) {
-        Optional<T> response = handler.handle(messageClass.parseToMessage(conn, message));
+        System.out.println("Handling message " + message);
+        T m = gsonBuilder.fromJson(message, messageClass);
+        System.out.println("parsed Object: " + m.jsonify());
+        m.setSender(conn);
+
+        Optional<T> response = handler.handle(m);
         if (response.isPresent() && conn.isOpen()){
-            conn.send(response.get().parseToString());
+            conn.send(response.get().jsonify());
         }
     }
 
@@ -57,15 +69,18 @@ public class WSServer<T extends WSServer.Message<T>> extends WebSocketServer{
     }
 
 
-    interface Message<T>{
-        public OpCode<?, ?> getOpcode();
+    interface Message{
+        OpCode<?, ?> getOpcode();
 
-        public WebSocket getSender();
+        WebSocket getSender();
 
-        /** Should parse conn and String message to a Message Obj*/
-        public T parseToMessage(WebSocket conn, String message);
         /** Should parse OpCode and message content to a String*/
-        public String parseToString();
+        String jsonify();
+
+        /** Should parse Message content to the expected Object type : R*/
+        <R> R getContent(Class<R> contentClass);
+
+        void setSender(WebSocket conn);
     }
 
     interface OpCode<T, R>{
@@ -73,7 +88,7 @@ public class WSServer<T extends WSServer.Message<T>> extends WebSocketServer{
     }
 
     @FunctionalInterface
-    interface MessageHandler<T extends Message<T>>{
+    interface MessageHandler<T extends Message>{
         Optional<T> handle(T message);
     }
 
@@ -83,9 +98,10 @@ public class WSServer<T extends WSServer.Message<T>> extends WebSocketServer{
     }
 
 
-
     @FunctionalInterface
     interface ConnectionEventListener<T>{
         T apply(ConnectionEvent event, WebSocket conn, @Nullable ClientHandshake handshake, @Nullable String reason);
     }
+
+
 }

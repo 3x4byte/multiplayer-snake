@@ -12,41 +12,6 @@ server.listen(portnumber, function(){
 });
 
 
-//websocket shit
-/*
-const websocket_package = require("ws");
-const websocket_portnumber = "ws://localhost:5001";
-const connection = new websocket_package.WebSocket(websocket_portnumber)
-//const serverSocket = new websocket_package.Server({ port: websocket_portnumber});
-let clientAmt = 0;
-
-//snake shit
-let snake = []
-
-
-serverSocket.on("connection", function (socket) {
-    let clientNr = clientAmt;
-    snake[clientNr] = new Snake();
-    clientAmt++;
-    console.log(`client ${clientNr} accepted`);
-
-    socket.onmessage = function (event){
-        snake[clientNr].move(event.data);
-        console.log(snake[clientNr].getHead())
-        console.log(snake[clientNr].getTail())
-        let ret = parseData(snake[clientNr].getHead(), snake[clientNr].getTail());
-        let ret_json = JSON.stringify(ret);
-        socket.send(ret_json);
-    }
-
-    socket.onclose = function(event){
-        console.log(`${clientNr} closed the connection`);
-    }
-
-});
-
- */
-
 function parseData(head, tail){
     ret = [];
     ret.push({type: "rectangle", x: head.x, y: head.y, fillColor: "darkgreen"});

@@ -1,3 +1,38 @@
+//import { Message, OpCode } from './communication';
+
+class Message {
+    constructor(opCode, content) {
+        this.opCode = opCode;
+        this.content = content;
+    }
+
+    static fromJson(jsonString) {
+        const obj = JSON.parse(jsonString);
+        console.log("parsed" + obj)
+        return new Message(obj.opCode, obj.content);
+    }
+
+    toJson() {
+        return JSON.stringify({
+            opCode: this.opCode,
+            content: this.content
+        });
+    }
+}
+
+const OpCode = {
+    ZERO: 'ZERO',
+    CREATE_LOBBY: 'CREATE_LOBBY',
+    JOIN_LOBBY: 'JOIN_LOBBY',
+    JOIN_FAILED: 'JOIN_FAILED',
+    LEAVE_LOBBY: 'LEAVE_LOBBY',
+    UP: 'UP',
+    DOWN: 'DOWN',
+    LEFT: 'LEFT',
+    RIGHT: 'RIGHT',
+    PLAYER_POSITIONS: 'PLAYER_POSITIONS'
+};
+
 var canvas;
 var canvas_enemies;
 var width;
@@ -115,36 +150,36 @@ function keyInput(evt){
     // whitelist of keys to be sent
     let key_filter = ['w', 'a', 's', 'd', 'W', 'A', 'S', 'D', "ArrowUp", "ArrowLeft", "ArrowDown", "ArrowRight"];
     let key_mapping = {
-        'w': 'W',
-        'W': 'W',
-        'ArrowUp': 'W',
-        'a' : 'A',
-        'A' : 'A',
-        'ArrowLeft': 'A',
-        's': 'S',
-        'S': 'S',
-        'ArrowDown': 'S',
-        'd': 'D',
-        'D': 'D',
-        'ArrowRight': 'D'
+        'w': OpCode.UP,
+        'W': OpCode.UP,
+        'ArrowUp': OpCode.UP,
+        'a' : OpCode.LEFT,
+        'A' : OpCode.LEFT,
+        'ArrowLeft': OpCode.LEFT,
+        's': OpCode.DOWN,
+        'S':  OpCode.DOWN,
+        'ArrowDown':  OpCode.DOWN,
+        'd': OpCode.RIGHT,
+        'D': OpCode.RIGHT,
+        'ArrowRight': OpCode.RIGHT
     }
     if(key_filter.includes(evt.key)){
         //console.log(key_mapping[evt.key]);
-        socket.send(key_mapping[evt.key]);
+        let msg = new Message(key_mapping[evt.key])
+        socket.send(msg.toJson());
     }
 }
 
-socket.onmessage = parseMessage;
+socket.onmessage = handleMessage;
 
-function parseMessage(msg){
+function handleMessage(jsonString){
+    console.log(jsonString)
+    //console.log(jsonString["opCode"])
+    let message = Message.fromJson(jsonString.data)
+    console.log(message.content)
 
-    let spliced_message = msg.data.split("_");
-    let opcode = spliced_message[0];
-    let data = spliced_message[1];
-
-    switch (opcode){
-        case "POSITIONS": drawSnakes(JSON.parse(data)); break;
-
+    switch (message.opCode){
+        case OpCode.PLAYER_POSITIONS: drawSnakes(message.content); break;
     }
 
 }

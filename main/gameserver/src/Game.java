@@ -1,5 +1,7 @@
 import java.util.Arrays;
 import java.util.Map;
+
+import com.google.gson.annotations.Expose;
 import org.json.JSONArray;
 
 
@@ -60,6 +62,7 @@ public class Game {
      */
     private void progress(){
         int[][][] positionalDataForUsers = new int[participants.size()][][];
+
         int i = 0;
         for (Map.Entry<Integer, Player> entrySet : participants.entrySet()){
             Player player = entrySet.getValue();
@@ -75,17 +78,16 @@ public class Game {
                  */
                 player.snake.move();
                 positionalDataForUsers[i++] = player.snake.stringifySnake();
+
             }
         }
 
         // send the positional data to all players
         for (Map.Entry<Integer, Player> entrySet : participants.entrySet()){
             Player player = entrySet.getValue();
-            JSONArray jsonArray = new JSONArray(positionalDataForUsers);
-            String[] msg = new String[]{OpCode.PLAYER_POSITIONS.id, jsonArray.toString()};
-            System.out.println("OUTGOING DATA TO USER: " + Arrays.toString(msg));
-            WSMessage message = new WSMessage(msg);
-            player.connection.send(message.parseToString());
+
+            WSMessage message = new WSMessage(OpCode.PLAYER_POSITIONS, positionalDataForUsers);
+            player.connection.send(message.jsonify());
         }
     }
 
