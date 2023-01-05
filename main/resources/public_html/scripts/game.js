@@ -3,6 +3,8 @@ var canvas_enemies;
 var width;
 var width_enemies;
 var num_rows = 10;
+var tile_size;
+var tile_size_enemy;
 window.onload = windowLoaded;
 
 function windowLoaded(){
@@ -32,16 +34,17 @@ function windowResized(evt){
 
 function drawCanvas(){
     drawGrid();
-    drawSnakes();
     updateInfobar();
 }
 
 function drawGrid(){
+    tile_size = (width-1)/num_rows;
     // draw own game field
     let ctx = canvas.getContext("2d");
     ctx.beginPath();
+    ctx.strokeStyle = "#00ADB5";
     // drawing the grid
-    for (let i = 0; i < width; i+= (width-1)/num_rows) {
+    for (let i = 0; i < width; i+=tile_size) {
         ctx.moveTo(0, i);
         ctx.lineTo(width, i);
         ctx.moveTo(i, 0);
@@ -50,13 +53,14 @@ function drawGrid(){
     ctx.stroke();
     ctx.closePath();
 
-
+    tile_size_enemy = (width_enemies-1)/num_rows
     // draw Enemy game fields
     for(cv of canvas_enemies){
         ctx = cv.getContext("2d");
         ctx.beginPath();
+        ctx.strokeStyle = "#00ADB5";
         // drawing the grid
-        for (let i = 0; i < width_enemies; i+= (width_enemies-1)/num_rows) {
+        for (let i = 0; i < width_enemies; i+=tile_size_enemy) {
             ctx.moveTo(0, i);
             ctx.lineTo(width_enemies, i);
             ctx.moveTo(i, 0);
@@ -67,15 +71,40 @@ function drawGrid(){
     }
 }
 
-function drawSnakes(){
-    // TODO
+function drawSnakes(positions){
+    let ctx = canvas.getContext("2d"); // TODO get corresponding canvas
+
+    ctx.clearRect(0, 0, width, width);
+
+    // loops all players
+    for(let player of positions){
+
+        let id = player.shift();
+        let head = player.shift();
+
+        ctx.beginPath();
+        // draw head of snake
+        ctx.fillStyle = "darkgreen";
+        ctx.fillRect(head[0] * tile_size, head[1] * tile_size, tile_size, tile_size);
+
+        // loops over the tail coordinates
+        for(let positions of player){
+            ctx.fillStyle = "green";
+            ctx.fillRect(positions[0] * tile_size, positions[1] * tile_size, tile_size, tile_size);
+        }
+
+        ctx.fill();
+        ctx.closePath();
+
+    }
+
+    drawGrid();
 }
 
 function updateInfobar(){
     // TODO
 }
 
-/*
 let socket = new WebSocket("ws://localhost:5001");
 
 
@@ -109,6 +138,13 @@ socket.onmessage = parseMessage;
 
 function parseMessage(msg){
 
-    // TODO
+    let spliced_message = msg.data.split("_");
+    let opcode = spliced_message[0];
+    let data = spliced_message[1];
+
+    switch (opcode){
+        case "POSITIONS": drawSnakes(JSON.parse(data)); break;
+
+    }
+
 }
-*/

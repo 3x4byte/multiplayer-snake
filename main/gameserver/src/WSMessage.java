@@ -9,7 +9,7 @@ import org.java_websocket.WebSocket;
  */
 public class WSMessage implements WSServer.Message<WSMessage>{
 
-    public static final String INFORMATION_DELIMITER = "-";
+    public static final String INFORMATION_DELIMITER = "_";
 
     private WebSocket connection;
     private String[] contents;

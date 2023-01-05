@@ -62,12 +62,12 @@ public class Snake {
     /**
      * Parse the snake as String array of coordinates [[x1, y1], [x2, y2], ...] in order Head - Body - Tail
      */
-    public String[][] stringifySnake(){
-        String[][] s = new String[snakeOrder.size()+1][];
-        s[0] = new String[]{snakeId + ""};
+    public int[][] stringifySnake(){
+        int[][] s = new int[snakeOrder.size()+1][];
+        s[0] = new int[]{snakeId};
         int i = 1;
         for (Coordinate c: snakeOrder){
-            s[i++] = new String[]{c.xPos+"", c.yPos+""};
+            s[i++] = new int[]{c.xPos, c.yPos};
         }
         return s;
     }

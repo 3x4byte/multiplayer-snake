@@ -1,11 +1,47 @@
+@font-face {
+    font-family: panton;
+    src: url("../fonts/Panton-BlackCaps.otf");
+}
+
+*{
+    font-family: panton;
+}
 body{
     margin: 0;
     padding: 0;
-    background: lightgray;
+    background: #222831;
+    color: #EEEEEE;
 }
 
 .container{
     width: 75%;
     margin: 0 auto;
     text-align: center;
+}
+
+h1, h2, h3, h4{
+    color: #00ADB5;
+}
+
+input{
+    color: #222831;
+    background: #EEEEEE;
+
+    border: #00ADB5 solid 2pt;
+    border-radius: 5pt;
+}
+
+
+button{
+    color: #EEEEEE;
+    height: 25pt;
+    background: #393E46;
+    border: #00ADB5 solid 2pt;
+    border-radius: 10pt;
+    padding-left: 20pt;
+    padding-right: 20pt;
+}
+button:hover{
+    background: #00ADB5;
+    color: #393E46;
 }
