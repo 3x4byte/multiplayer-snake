@@ -18,16 +18,14 @@ export class Message {
 }
 
 export const OpCode = {
-    ZERO: 'UNIQUE',
-    CREATE_LOBBY: 'CREATE',
-    JOIN_LOBBY: 'JOIN',
+    ZERO: 'ZERO',
+    CREATE_LOBBY: 'CREATE_LOBBY',
+    JOIN_LOBBY: 'JOIN_LOBBY',
     JOIN_FAILED: 'JOIN_FAILED',
-    LEAVE_LOBBY: 'LEAVE',
-    UP: 'W',
-    DOWN: 'S',
-    LEFT: 'A',
-    RIGHT: 'D',
-    PLAYER_POSITIONS: 'POSITIONS'
+    LEAVE_LOBBY: 'LEAVE_LOBBY',
+    UP: 'UP',
+    DOWN: 'DOWN',
+    LEFT: 'LEFT',
+    RIGHT: 'RIGHT',
+    PLAYER_POSITIONS: 'PLAYER_POSITIONS'
 };
-
-//todo IMPORT intead of copy (however that works in this shitty language)

@@ -1,37 +1,4 @@
-//import { Message, OpCode } from './communication';
-
-class Message {
-    constructor(opCode, content) {
-        this.opCode = opCode;
-        this.content = content;
-    }
-
-    static fromJson(jsonString) {
-        const obj = JSON.parse(jsonString);
-        console.log("parsed" + obj)
-        return new Message(obj.opCode, obj.content);
-    }
-
-    toJson() {
-        return JSON.stringify({
-            opCode: this.opCode,
-            content: this.content
-        });
-    }
-}
-
-const OpCode = {
-    ZERO: 'ZERO',
-    CREATE_LOBBY: 'CREATE_LOBBY',
-    JOIN_LOBBY: 'JOIN_LOBBY',
-    JOIN_FAILED: 'JOIN_FAILED',
-    LEAVE_LOBBY: 'LEAVE_LOBBY',
-    UP: 'UP',
-    DOWN: 'DOWN',
-    LEFT: 'LEFT',
-    RIGHT: 'RIGHT',
-    PLAYER_POSITIONS: 'PLAYER_POSITIONS'
-};
+import { Message, OpCode } from '/scripts/communication.js';
 
 var canvas;
 var canvas_enemies;
@@ -90,7 +57,7 @@ function drawGrid(){
 
     tile_size_enemy = (width_enemies-1)/num_rows
     // draw Enemy game fields
-    for(cv of canvas_enemies){
+    for(let cv of canvas_enemies){
         ctx = cv.getContext("2d");
         ctx.beginPath();
         ctx.strokeStyle = "#00ADB5";
@@ -164,7 +131,6 @@ function keyInput(evt){
         'ArrowRight': OpCode.RIGHT
     }
     if(key_filter.includes(evt.key)){
-        //console.log(key_mapping[evt.key]);
         let msg = new Message(key_mapping[evt.key])
         socket.send(msg.toJson());
     }
@@ -173,10 +139,7 @@ function keyInput(evt){
 socket.onmessage = handleMessage;
 
 function handleMessage(jsonString){
-    console.log(jsonString)
-    //console.log(jsonString["opCode"])
     let message = Message.fromJson(jsonString.data)
-    console.log(message.content)
 
     switch (message.opCode){
         case OpCode.PLAYER_POSITIONS: drawSnakes(message.content); break;
