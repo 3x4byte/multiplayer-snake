@@ -1,0 +1,19 @@
+.username{
+    text-align: center;
+    height: 25pt;
+    margin-bottom: 5vh;
+}
+
+.create_game{
+    margin-bottom: 5vh;
+}
+
+.game_id{
+    text-align: center;
+    height: 20pt;
+    margin-bottom: 2vh;
+}
+
+.highlighted{
+    border: orange solid 5pt;
+}

@@ -59,7 +59,7 @@ public class Game {
      * all player state updates are handles as essentially round trip data - the players game is not extrapolated but updates only on websocket msg.
      */
     private void progress(){
-        String[][][] positionalDataForUsers = new String[participants.size()][][];
+        int[][][] positionalDataForUsers = new int[participants.size()][][];
         int i = 0;
         for (Map.Entry<Integer, Player> entrySet : participants.entrySet()){
             Player player = entrySet.getValue();
