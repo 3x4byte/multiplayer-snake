@@ -4,6 +4,11 @@ import com.google.gson.annotations.Expose;
 
 import java.util.*;
 
+/**
+ * Represents a classical Snake, made serializable via GSON.
+ * It manages its movement and updates the game state by writing to injected Objects,
+ * further provides methods for the Game instance to manage the snake Object.
+ */
 public class Snake {
 
     @Expose(serialize = false, deserialize = false)
@@ -19,7 +24,7 @@ public class Snake {
     @Expose
     public boolean collided;
     @Expose
-    private LinkedList<Coordinate> snakeFields;
+    private LinkedList<Coordinate> snakeFields; //todo rename to body
     @Expose(serialize = false, deserialize = false)
     public transient HashSet<Coordinate> occupiedFields;
     @Expose(serialize = false, deserialize = false)
@@ -33,6 +38,9 @@ public class Snake {
         snakeMovementDataReset();
     }
 
+    /**
+     * Occupies fields for the snakes body
+     */
     private void preoccupyFields(){
         for (Coordinate c : Arrays.asList(
                                     new Coordinate(5, 5),
@@ -43,12 +51,18 @@ public class Snake {
         }
     }
 
+    /**
+     * Moves the snake to the starting position
+     */
     public void snakeToStartPosition(){
         this.occupiedFields = new HashSet<>();
         this.snakeFields = new LinkedList<>();
         preoccupyFields();
     }
 
+    /**
+     * Moves the snake one step into the direction its heading.
+     */
     public void move(){
         Coordinate head = snakeFields.getFirst();
 
@@ -74,6 +88,10 @@ public class Snake {
         }
     }
 
+    /**
+     * Moves the snake onto the targetField and manages everything related to this action,
+     * this includes: collisions, collection of items and the growth of the snake.
+     */
     private void moveHelper(Coordinate targetField){
         // move snake one field
         snakeFields.addFirst(targetField);
@@ -102,6 +120,10 @@ public class Snake {
         }
     }
 
+    /**
+     * Helper method either retrieving the next direction
+     * form the queue (buffer) or returning the last used to update the snake.
+     */
     private OpCode getNextFromDirectionOrLast(){
         OpCode direction = nextDirections.pollFirst();
         if (direction == null){
@@ -110,6 +132,11 @@ public class Snake {
         return direction;
     }
 
+
+    /**
+     * Helper method either retrieving the last direction
+     * form the queue (buffer) or returning the last used to update the snake.
+     */
     private OpCode getLastFromDirectionOrLast(){
         OpCode direction = nextDirections.getLast();
         if (direction == null){
@@ -118,12 +145,18 @@ public class Snake {
         return direction;
     }
 
+    /**
+     * Resets all fields related to the movement of the snake.
+     */
     public void snakeMovementDataReset(){
         this.lastDirection = OpCode.UP;
         this.nextDirections = new BoundedQueue<>(3);
         this.collided = false;
     }
 
+    /**
+     * Method for the GameServer instance to set a direction change request made by the WebSocket.
+     */
     public void changeDirection(OpCode direction){
         synchronized (directionMutex) {
             OpCode lastDirection = getLastFromDirectionOrLast();

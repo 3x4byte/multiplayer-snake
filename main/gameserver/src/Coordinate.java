@@ -2,6 +2,9 @@ import com.google.gson.annotations.Expose;
 
 import java.util.Objects;
 
+/**
+ * Class representing Coordinates on a Snake Game Board, made serializable via GSON.
+ */
 class Coordinate {
     @Expose(serialize = false, deserialize = false)
     private transient final int hashCode;

@@ -96,7 +96,7 @@ public class Game {
         spawnApples(); //todo spawn different items later
 
         // prepare messages
-        WSMessage messageApplePositions = new WSMessage(OpCode.APPLE_POSITIONS, itemCoordinates);
+        WSMessage messageApplePositions = new WSMessage(OpCode.ITEM_POSITIONS, itemCoordinates);
         String applePositionsAsJson = messageApplePositions.jsonify();
         WSMessage messagePlayerPositions = new WSMessage(OpCode.PLAYER_POSITIONS, players);
         String playerPositionsAsJson = messagePlayerPositions.jsonify();

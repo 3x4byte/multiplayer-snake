@@ -22,12 +22,6 @@ public class WSMessage implements WSServer.Message{
     private Object content;
 
 
-    WSMessage(WebSocket connection, OpCode opCode, Object content){
-        this.connection = connection;
-        this.opCode = opCode;
-        this.content = content;
-    }
-
     /**
      * This Constructor will be used most of the time for sending
      */
@@ -41,7 +35,7 @@ public class WSMessage implements WSServer.Message{
      * This one is for building responses for the {@link GameServer.WSMessageHandler} that only need minimal information
      */
     WSMessage(OpCode opCode){
-        this.content = new String[]{opCode.id};
+        this.opCode = opCode;
     }
 
 

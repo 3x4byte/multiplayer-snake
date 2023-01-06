@@ -70,7 +70,7 @@ public class WSServer<T extends WSServer.Message> extends WebSocketServer{
 
 
     interface Message{
-        OpCode<?, ?> getOpcode();
+        OpCode getOpcode();
 
         WebSocket getSender();
 
@@ -83,9 +83,10 @@ public class WSServer<T extends WSServer.Message> extends WebSocketServer{
         void setSender(WebSocket conn);
     }
 
-    interface OpCode<T, R>{
-        Optional<R> getOpCode(T input);
-    }
+    /**
+     * Anything suitable for unique identification
+     */
+    interface OpCode{ }
 
     @FunctionalInterface
     interface MessageHandler<T extends Message>{
