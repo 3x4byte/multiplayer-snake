@@ -10,9 +10,9 @@ public class Snake {
     @Expose
     public int lives = 3; //?
     @Expose(serialize = false, deserialize = false)
-    public transient OpCode lastDirection = OpCode.UP; //the message OpCodes double as directional data - saves processing
+    public transient OpCode lastDirection; //the message OpCodes double as directional data - saves processing
     @Expose(serialize = false, deserialize = false)
-    private transient BoundedQueue<OpCode> nextDirections = new BoundedQueue<>(3);
+    private transient BoundedQueue<OpCode> nextDirections;
     @Expose(serialize = false, deserialize = false)
     private transient final Object directionMutex = new Object();
     @Expose
@@ -25,6 +25,7 @@ public class Snake {
 
     Snake(){
         snakeToStartPosition();
+        snakeMovementDataReset();
     }
 
 
@@ -93,6 +94,11 @@ public class Snake {
             direction = lastDirection;
         }
         return direction;
+    }
+
+    public void snakeMovementDataReset(){
+        this.lastDirection = OpCode.UP;
+        this.nextDirections = new BoundedQueue<>(3);
     }
 
     // todo eigentlich sollte das ein clientseitiger check sein!

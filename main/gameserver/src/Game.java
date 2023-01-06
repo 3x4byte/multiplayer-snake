@@ -65,9 +65,9 @@ public class Game {
             if (player.snake.lives > 0) {
 
                 if (player.snake.collided) {
-                    //todo spawn snake in middle and subtract one live
-                    player.snake.snakeToStartPosition();
                     player.snake.collided = false;
+                    player.snake.snakeToStartPosition();
+                    player.snake.snakeMovementDataReset();
                 } else {
                     player.snake.move();
                 }
