@@ -24,9 +24,7 @@ public class Snake {
 
 
     Snake(){
-        occupiedFields = new HashSet<>();
-        snakeFields = new LinkedList<>();
-        preoccupyFields();
+        snakeToStartPosition();
     }
 
 
@@ -38,6 +36,12 @@ public class Snake {
             snakeFields.addLast(c);
             occupiedFields.add(c);
         }
+    }
+
+    public void snakeToStartPosition(){
+        this.occupiedFields = new HashSet<>();
+        this.snakeFields = new LinkedList<>();
+        preoccupyFields();
     }
 
     public void move(){
@@ -68,8 +72,11 @@ public class Snake {
     private void moveHelper(Coordinate targetField){
         snakeFields.addFirst(targetField);
         occupiedFields.remove(snakeFields.removeLast()); // delete the last snake body part
-        collided = occupiedFields.contains(targetField) || targetField.x > Game.WORLD_WIDTH || targetField.x < Game.WORLD_WIDTH ||
-                targetField.y > Game.WORLD_HEIGHT || targetField.y < Game.WORLD_HEIGHT;
+        collided = occupiedFields.contains(targetField) || targetField.x >= Game.WORLD_WIDTH || targetField.x < 0 ||
+                targetField.y >= Game.WORLD_HEIGHT || targetField.y < 0;
+        if (collided){
+            lives -= 1;
+        }
     }
 
     private OpCode getNextFromDirectionOrLast(){
@@ -90,7 +97,6 @@ public class Snake {
 
     // todo eigentlich sollte das ein clientseitiger check sein!
     public void changeDirection(OpCode direction){
-        System.out.println("direction to add: " + direction + " queue: " + Arrays.toString(nextDirections.toArray()));
         synchronized (directionMutex) {
             OpCode lastDirection = getLastFromDirectionOrLast();
             switch (direction) {

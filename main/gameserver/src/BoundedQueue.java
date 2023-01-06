@@ -1,6 +1,10 @@
 import javax.annotation.Nullable;
 import java.util.LinkedList;
 
+/**
+ * BoundedQueue is a size limited queue - currently only
+ * #add and #addLast are implemented
+ */
 public class BoundedQueue<T> extends LinkedList<T> {
 
     private int limit;

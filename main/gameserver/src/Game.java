@@ -57,30 +57,29 @@ public class Game {
      * all player state updates are handles as essentially round trip data - the players game is not extrapolated but updates only on websocket msg.
      */
     private void progress(){
-        //int[][][] positionalDataForUsers = new int[participants.size()][][];
         Player[] players = new Player[participants.size()];
         int i = 0;
         for (Map.Entry<Integer, Player> entrySet : participants.entrySet()){
             Player player = entrySet.getValue();
             System.out.println("UPDATING PLAYER " + player.id);
             if (player.snake.lives > 0) {
-                /*
+
                 if (player.snake.collided) {
                     //todo spawn snake in middle and subtract one live
+                    player.snake.snakeToStartPosition();
+                    player.snake.collided = false;
                 } else {
                     player.snake.move();
                 }
 
-                 */
-                player.snake.move();
                 players[i++] = player;
-                //positionalDataForUsers[i++] = player.snake.stringifySnake();
             }
         }
 
+        // prepare message
         WSMessage message = new WSMessage(OpCode.PLAYER_POSITIONS, players);
         String messageAsJson = message.jsonify();
-        // send the positional data to all players
+        // send the "snakes" data to all players
         for (Map.Entry<Integer, Player> entrySet : participants.entrySet()){
             Player player = entrySet.getValue();
 
