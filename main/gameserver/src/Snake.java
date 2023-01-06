@@ -1,68 +1,71 @@
+import com.google.gson.annotations.Expose;
+
 import java.util.*;
-import java.util.logging.Level;
 
 public class Snake {
-
-    public final int snakeId;
-    public int length = 3;
-    public float speedFactor = 1;
+    @Expose(serialize = false, deserialize = false)
+    public transient int length = 3;
+    @Expose(serialize = false, deserialize = false)
+    public transient float speedFactor = 1;
+    @Expose
     public int lives = 3; //?
-    public OpCode direction = OpCode.UP; //the message OpCodes double as directional data - saves processing
+    @Expose(serialize = false, deserialize = false)
+    public transient OpCode direction = OpCode.UP; //the message OpCodes double as directional data - saves processing
+    @Expose
     public boolean collided = false;
+    @Expose
+    private LinkedList<Coordinate> snakeFields;
+    @Expose(serialize = false, deserialize = false)
+    private transient HashSet<Coordinate> occupiedFields;
 
-    private LinkedList<Coordinate> snakeOrder;
-    private HashSet<Coordinate> occupiedFields;
 
-
-    Snake(int id){
-        this.snakeId = id;
+    Snake(){
         occupiedFields = new HashSet<>();
-        snakeOrder = new LinkedList<>();
+        snakeFields = new LinkedList<>();
         preoccupyFields();
     }
+
 
     private void preoccupyFields(){
         for (Coordinate c : Arrays.asList(
                                     new Coordinate(5, 5),
                                     new Coordinate(5, 6),
                                     new Coordinate(5, 7))){
-            snakeOrder.addLast(c);
+            snakeFields.addLast(c);
             occupiedFields.add(c);
         }
     }
 
     public void move(){
-        Coordinate head = snakeOrder.getFirst();
+        Coordinate head = snakeFields.getFirst();
 
         switch (direction){
             case UP:
-                moveHelper(new Coordinate(head.xPos, head.yPos - 1)); //todo collision stuff
+                moveHelper(new Coordinate(head.x, head.y - 1)); //todo collision stuff
                 break;
             case DOWN:
-                moveHelper(new Coordinate(head.xPos, head.yPos + 1));
+                moveHelper(new Coordinate(head.x, head.y + 1));
                 break;
             case RIGHT:
-                moveHelper(new Coordinate(head.xPos + 1, head.yPos));
+                moveHelper(new Coordinate(head.x + 1, head.y));
                 break;
             default:
             case LEFT:
-                moveHelper(new Coordinate(head.xPos - 1, head.yPos));
+                moveHelper(new Coordinate(head.x - 1, head.y));
                 break;
         }
     }
 
     private void moveHelper(Coordinate targetField){
-        snakeOrder.addFirst(targetField);
-        occupiedFields.remove(snakeOrder.removeLast()); // delete the last snake body part
-        collided = occupiedFields.contains(targetField) || targetField.xPos > Game.WORLD_WIDTH || targetField.xPos < Game.WORLD_WIDTH ||
-                targetField.yPos > Game.WORLD_HEIGHT || targetField.yPos < Game.WORLD_HEIGHT;
+        snakeFields.addFirst(targetField);
+        occupiedFields.remove(snakeFields.removeLast()); // delete the last snake body part
+        collided = occupiedFields.contains(targetField) || targetField.x > Game.WORLD_WIDTH || targetField.x < Game.WORLD_WIDTH ||
+                targetField.y > Game.WORLD_HEIGHT || targetField.y < Game.WORLD_HEIGHT;
     }
 
 
 
-    /**
-     * Parse the snake as String array of coordinates [[x1, y1], [x2, y2], ...] in order Head - Body - Tail
-     */
+    /*
     public int[][] stringifySnake(){
         int[][] s = new int[snakeOrder.size()+1][];
         s[0] = new int[]{snakeId};
@@ -72,6 +75,8 @@ public class Snake {
         }
         return s;
     }
+
+     */
 
     // todo eigentlich sollte das ein clientseitiger check sein!
     public void changeDirection(OpCode direction){
@@ -101,21 +106,24 @@ public class Snake {
 
 
     static class Coordinate{
-        public final int hashCode;
-        public int xPos;
-        public int yPos;
+        @Expose(serialize = false, deserialize = false)
+        private transient final int hashCode;
+        @Expose
+        public int x;
+        @Expose
+        public int y;
 
-        Coordinate(int xPos, int yPos){
-            this.xPos = xPos;
-            this.yPos = yPos;
-            hashCode = Objects.hash(xPos, yPos);
+        Coordinate(int x, int yPos){
+            this.x = x;
+            this.y = yPos;
+            hashCode = Objects.hash(x, yPos);
         }
 
         @Override
         public boolean equals(Object obj) {
             if (obj instanceof  Coordinate){
                 Coordinate nObj = (Coordinate) obj;
-                return this.xPos ==nObj.yPos && this.yPos == nObj.yPos;
+                return this.x ==nObj.y && this.y == nObj.y;
             }
             return false;
         }
@@ -127,7 +135,7 @@ public class Snake {
 
         @Override
         public String toString() {
-            return "( " + xPos + ", " + yPos + ")";
+            return "( " + x + ", " + y + ")";
         }
     }
 }

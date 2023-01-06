@@ -1,8 +1,4 @@
-import java.util.Arrays;
 import java.util.Map;
-
-import com.google.gson.annotations.Expose;
-import org.json.JSONArray;
 
 
 /**
@@ -49,7 +45,7 @@ public class Game {
     Game(Map<Integer, Player> participants){
         this.participants = participants;
         for (Player player :participants.values()){
-            player.snake = new Snake(player.id);
+            player.snake = new Snake();
         }
     }
 
@@ -61,8 +57,8 @@ public class Game {
      * all player state updates are handles as essentially round trip data - the players game is not extrapolated but updates only on websocket msg.
      */
     private void progress(){
-        int[][][] positionalDataForUsers = new int[participants.size()][][];
-
+        //int[][][] positionalDataForUsers = new int[participants.size()][][];
+        Player[] players = new Player[participants.size()];
         int i = 0;
         for (Map.Entry<Integer, Player> entrySet : participants.entrySet()){
             Player player = entrySet.getValue();
@@ -77,17 +73,20 @@ public class Game {
 
                  */
                 player.snake.move();
-                positionalDataForUsers[i++] = player.snake.stringifySnake();
-
+                players[i++] = player;
+                //positionalDataForUsers[i++] = player.snake.stringifySnake();
             }
         }
 
+        WSMessage message = new WSMessage(OpCode.PLAYER_POSITIONS, players);
+        String messageAsJson = message.jsonify();
         // send the positional data to all players
         for (Map.Entry<Integer, Player> entrySet : participants.entrySet()){
             Player player = entrySet.getValue();
 
-            WSMessage message = new WSMessage(OpCode.PLAYER_POSITIONS, positionalDataForUsers);
-            player.connection.send(message.jsonify());
+            if (player.connection.isOpen()) {
+                player.connection.send(messageAsJson);
+            }
         }
     }
 

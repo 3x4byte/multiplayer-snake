@@ -12,15 +12,13 @@ import org.java_websocket.WebSocket;
  */
 public class WSMessage implements WSServer.Message{
     @Expose(serialize = false, deserialize = false)
-    private static Gson gsonBuilder = new GsonBuilder().create();
+    private static final Gson gsonBuilder = new GsonBuilder().create();
 
     @Expose(serialize=false, deserialize=false)
     private WebSocket connection;
     @Expose
-    @SerializedName("opCode")
     private OpCode opCode;
     @Expose
-    @SerializedName("content")
     private Object content;
 
 

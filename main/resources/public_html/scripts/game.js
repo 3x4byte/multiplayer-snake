@@ -138,8 +138,11 @@ function keyInput(evt){
 
 socket.onmessage = handleMessage;
 
-function handleMessage(jsonString){
-    let message = Message.fromJson(jsonString.data)
+function handleMessage(websocketMessage){
+    console.log("Incoming message: " + websocketMessage.data) //only delete after debugging please
+    let message = Message.fromJson(websocketMessage.data)
+    console.log("Parsed message: " + message) //only delete after debugging please
+
 
     switch (message.opCode){
         case OpCode.PLAYER_POSITIONS: drawSnakes(message.content); break;

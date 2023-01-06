@@ -1,19 +1,26 @@
+import com.google.gson.annotations.Expose;
 import org.java_websocket.WebSocket;
 
 /**
  * Holds runtime player data, is currently not persisted
  */
 public class Player {
-    public static int playerCount = 0;
-    public final WebSocket connection; //technically redundant
-    public final int id;
+    @Expose(serialize = false, deserialize = false)
+    public transient static int playerCount = 0;
+    @Expose(serialize = false, deserialize = false)
+    public transient final WebSocket connection; //technically redundant
 
+    @Expose
+    public final int id;
+    @Expose(serialize = false, deserialize = false)
     public String subscribedToLobbyId;
+    @Expose
     public Snake snake; // is reset at every game start
 
     Player(WebSocket connection){
         this.id = playerCount++;
         this.connection = connection;
     }
+
 
 }
