@@ -1,5 +1,15 @@
 import { Message, OpCode } from '/scripts/communication.js';
 
+var socket;
+
+var last_key_input = "UP";
+
+var pid = 0; // TODO get own id from server
+let own_canvas_found;
+var name_field;
+var name_enemies_field;
+var lives_field;
+var lives_enemies_field;
 var canvas;
 var canvas_enemies;
 var width;
@@ -7,19 +17,30 @@ var width_enemies;
 var num_rows = 10;
 var tile_size;
 var tile_size_enemy;
+
 window.onload = windowLoaded;
 
-function windowLoaded(){
-    // TODO connectToWebsocket();
+// adding resize event to scale the canvases
+window.addEventListener("resize", windowResized);
 
+// adding keydown EventListener for movement input of the User
+document.addEventListener('keydown', keyInput);
+
+
+
+function windowLoaded(){
+    socket = new WebSocket("ws://localhost:5001");
+    socket.onmessage = handleMessage;
+
+    name_field = document.querySelector(".own_name")
+    name_enemies_field = document.querySelectorAll(".name")
+    lives_field = document.querySelector(".own_lives")
+    lives_enemies_field = document.querySelectorAll(".lives")
     canvas = document.querySelector(".own_game");
     canvas_enemies = document.querySelectorAll(".enemy");
 
     windowResized();
 }
-
-window.addEventListener("resize", windowResized);
-
 function windowResized(evt){
     width = window.innerWidth * 0.34;
     canvas.setAttribute("height", width);
@@ -31,12 +52,7 @@ function windowResized(evt){
         c.setAttribute("width", width_enemies);
     }
 
-    drawCanvas();
-}
-
-function drawCanvas(){
     drawGrid();
-    updateInfobar();
 }
 
 function drawGrid(){
@@ -73,45 +89,62 @@ function drawGrid(){
     }
 }
 
-function drawSnakes(positions){
-    let ctx = canvas.getContext("2d"); // TODO get corresponding canvas
+function updatePlayers(data){
 
-    ctx.clearRect(0, 0, width, width);
-
+    own_canvas_found = 0;
     // loops all players
-    for(let player of positions){
+    for(let player of data){
+        let id = player.id;
+        let snake = player.snake;
 
-        let id = player.shift();
-        let head = player.shift();
-
-        ctx.beginPath();
-        // draw head of snake
-        ctx.fillStyle = "darkgreen";
-        ctx.fillRect(head[0] * tile_size, head[1] * tile_size, tile_size, tile_size);
-
-        // loops over the tail coordinates
-        for(let positions of player){
-            ctx.fillStyle = "green";
-            ctx.fillRect(positions[0] * tile_size, positions[1] * tile_size, tile_size, tile_size);
+        let ctx;
+        if(id === pid){
+            own_canvas_found = 1;
+            ctx = canvas.getContext("2d");
+            drawSnake(ctx, snake.snakeFields, tile_size);
+        }
+        else{
+            ctx = canvas_enemies[id-own_canvas_found].getContext("2d");
+            drawSnake(ctx, snake.snakeFields, tile_size_enemy);
         }
 
-        ctx.fill();
-        ctx.closePath();
+        updateLives(snake.lives, id);
+        updateCollision(snake.collided, id);
 
     }
 
     drawGrid();
 }
 
-function updateInfobar(){
-    // TODO
+function updateLives(lives, id){
+    if(id === pid){
+        lives_field.innerText = lives;
+    }else{
+        lives_enemies_field[id - own_canvas_found].innerText = lives;
+    }
 }
 
-let socket = new WebSocket("ws://localhost:5001");
+function updateCollision(is_collided, id){
+    // TODO maybe animation?
+}
 
+function drawSnake(ctx, positions, size){
+    let head = true;
+    ctx.clearRect(0, 0, size*num_rows, size*num_rows);
+    ctx.beginPath();
+    // loops over the tail coordinates
+    for(let position of positions){
+        ctx.fillStyle = "green";
+        if(head){
+            ctx.fillStyle = "darkgreen";
+            head = false;
+        }
+        ctx.fillRect(position.x * size, position.y * size, size, size);
+    }
 
-// adding keydown EventListener for movement input of the User
-document.addEventListener('keydown', keyInput);
+    ctx.fill();
+    ctx.closePath();
+}
 
 function keyInput(evt){
     // whitelist of keys to be sent
@@ -131,21 +164,23 @@ function keyInput(evt){
         'ArrowRight': OpCode.RIGHT
     }
     if(key_filter.includes(evt.key)){
-        let msg = new Message(key_mapping[evt.key])
-        socket.send(msg.toJson());
+        let msg = new Message(key_mapping[evt.key]);
+
+        if(msg.opCode !== last_key_input){
+            last_key_input = msg.opCode;
+            socket.send(msg.toJson());
+        }
+
     }
 }
 
-socket.onmessage = handleMessage;
-
 function handleMessage(websocketMessage){
-    console.log("Incoming message: " + websocketMessage.data) //only delete after debugging please
-    let message = Message.fromJson(websocketMessage.data)
-    console.log("Parsed message: " + message) //only delete after debugging please
-
+    console.log("Incoming message: " + websocketMessage.data); //only delete after debugging please
+    let message = Message.fromJson(websocketMessage.data);
+    console.log("Parsed message: " + message); //only delete after debugging please
 
     switch (message.opCode){
-        case OpCode.PLAYER_POSITIONS: drawSnakes(message.content); break;
+        case OpCode.PLAYER_POSITIONS: updatePlayers(message.content); break;
     }
 
 }
