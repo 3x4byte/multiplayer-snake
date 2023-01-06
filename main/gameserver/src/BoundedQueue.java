@@ -18,6 +18,14 @@ public class BoundedQueue<T> extends LinkedList<T> {
     }
 
     @Override
+    public void addLast(T t) {
+        if (size() >= this.limit) {
+            removeLast();
+        }
+        super.addLast(t);
+    }
+
+    @Override
     @Nullable
     public T getLast() {
         if (size() > 0) {
