@@ -10,7 +10,11 @@ public class Snake {
     @Expose
     public int lives = 3; //?
     @Expose(serialize = false, deserialize = false)
-    public transient OpCode direction = OpCode.UP; //the message OpCodes double as directional data - saves processing
+    public transient OpCode lastDirection = OpCode.UP; //the message OpCodes double as directional data - saves processing
+    @Expose(serialize = false, deserialize = false)
+    private transient BoundedQueue<OpCode> nextDirections = new BoundedQueue<>(3);
+    @Expose(serialize = false, deserialize = false)
+    private transient final Object directionMutex = new Object();
     @Expose
     public boolean collided = false;
     @Expose
@@ -39,20 +43,25 @@ public class Snake {
     public void move(){
         Coordinate head = snakeFields.getFirst();
 
-        switch (direction){
-            case UP:
-                moveHelper(new Coordinate(head.x, head.y - 1)); //todo collision stuff
-                break;
-            case DOWN:
-                moveHelper(new Coordinate(head.x, head.y + 1));
-                break;
-            case RIGHT:
-                moveHelper(new Coordinate(head.x + 1, head.y));
-                break;
-            default:
-            case LEFT:
-                moveHelper(new Coordinate(head.x - 1, head.y));
-                break;
+        synchronized (directionMutex) {
+
+            OpCode nextDirection = getNextFromDirectionOrLast();
+            switch (nextDirection) {
+                case UP:
+                    moveHelper(new Coordinate(head.x, head.y - 1)); //todo collision stuff
+                    break;
+                case DOWN:
+                    moveHelper(new Coordinate(head.x, head.y + 1));
+                    break;
+                case RIGHT:
+                    moveHelper(new Coordinate(head.x + 1, head.y));
+                    break;
+                default:
+                case LEFT:
+                    moveHelper(new Coordinate(head.x - 1, head.y));
+                    break;
+            }
+            lastDirection = nextDirection;
         }
     }
 
@@ -63,44 +72,49 @@ public class Snake {
                 targetField.y > Game.WORLD_HEIGHT || targetField.y < Game.WORLD_HEIGHT;
     }
 
-
-
-    /*
-    public int[][] stringifySnake(){
-        int[][] s = new int[snakeOrder.size()+1][];
-        s[0] = new int[]{snakeId};
-        int i = 1;
-        for (Coordinate c: snakeOrder){
-            s[i++] = new int[]{c.xPos, c.yPos};
+    private OpCode getNextFromDirectionOrLast(){
+        OpCode direction = nextDirections.pollFirst();
+        if (direction == null){
+            direction = lastDirection;
         }
-        return s;
+        return direction;
     }
 
-     */
+    private OpCode getLastFromDirectionOrLast(){
+        OpCode direction = nextDirections.getLast();
+        if (direction == null){
+            direction = lastDirection;
+        }
+        return direction;
+    }
 
     // todo eigentlich sollte das ein clientseitiger check sein!
     public void changeDirection(OpCode direction){
-        switch (direction){
-            case UP:
-                if (!this.direction.equals(OpCode.DOWN)){
-                    this.direction = direction;
-                }
-                break;
-            case DOWN:
-                if (!this.direction.equals(OpCode.UP)){
-                    this.direction = direction;
-                }
-                break;
-            case LEFT:
-                if (!this.direction.equals(OpCode.RIGHT)){
-                    this.direction = direction;
-                }
-                break;
-            case RIGHT:
-                if (!this.direction.equals(OpCode.LEFT)){
-                    this.direction = direction;
-                }
-                break;
+        System.out.println("direction to add: " + direction + " queue: " + Arrays.toString(nextDirections.toArray()));
+        synchronized (directionMutex) {
+            OpCode lastDirection = getLastFromDirectionOrLast();
+            switch (direction) {
+                case UP:
+                    if (!lastDirection.equals(OpCode.DOWN)) {
+                        nextDirections.addLast(direction);
+                    }
+                    break;
+                case DOWN:
+                    if (!lastDirection.equals(OpCode.UP)) {
+                        nextDirections.addLast(direction);
+                    }
+                    break;
+                case LEFT:
+                    if (!lastDirection.equals(OpCode.RIGHT)) {
+                        nextDirections.addLast(direction);
+                    }
+                    break;
+                case RIGHT:
+                    if (!lastDirection.equals(OpCode.LEFT)) {
+                        nextDirections.addLast(direction);
+                    }
+                    break;
+            }
         }
     }
 

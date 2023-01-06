@@ -102,6 +102,4 @@ public class WSServer<T extends WSServer.Message> extends WebSocketServer{
     interface ConnectionEventListener<T>{
         T apply(ConnectionEvent event, WebSocket conn, @Nullable ClientHandshake handshake, @Nullable String reason);
     }
-
-
 }
