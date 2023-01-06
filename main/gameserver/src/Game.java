@@ -1,4 +1,7 @@
-import java.util.Map;
+import Items.Apple;
+import Items.Item;
+
+import java.util.*;
 
 
 /**
@@ -14,10 +17,24 @@ public class Game {
     public static final int WORLD_WIDTH = 10;
     public static final int WORLD_HEIGHT = WORLD_WIDTH;
 
+    public static final int apples = 1; // the amount of apples that should be present at all time
+
     public long lastUpdatedAt = 0; //lobby will be updated as soon as it is created
     public final Object lastUpdatedAtRWMutex = new Object();
     public State state = State.RUNNING;
     public final Map<Integer, Player> participants; // maps player IDs to Player Objects - in the future will allow to target actions from players to players
+
+    private static final HashSet<Coordinate> fields = new HashSet<>(100);
+    static {
+        for (int x = 0; x<WORLD_WIDTH; x++){
+            for (int y = 0; y<WORLD_HEIGHT; y++){
+                fields.add(new Coordinate(x, y));
+            }
+        }
+    }
+
+    private final HashMap<Coordinate, Item> itemCoordinates = new HashMap<>(apples);
+    private final Set<Coordinate> collectedItems = new HashSet<>();
 
     // GAME DATA
     // The Snakes speed determines how long it takes per field
@@ -25,6 +42,7 @@ public class Game {
     private long timeTillNextDeath;
     private Player currentlyLongest;
 
+    private Random random = new Random();
 
     /**
      * Will be called by a worker Thread of the GameServer to progress the game
@@ -41,11 +59,10 @@ public class Game {
         STOPPED,
     }
 
-
     Game(Map<Integer, Player> participants){
         this.participants = participants;
         for (Player player :participants.values()){
-            player.snake = new Snake();
+            player.snake = new Snake(itemCoordinates, collectedItems);
         }
     }
 
@@ -65,7 +82,6 @@ public class Game {
             if (player.snake.lives > 0) {
 
                 if (player.snake.collided) {
-                    player.snake.collided = false;
                     player.snake.snakeToStartPosition();
                     player.snake.snakeMovementDataReset();
                 } else {
@@ -76,18 +92,50 @@ public class Game {
             }
         }
 
-        // prepare message
-        WSMessage message = new WSMessage(OpCode.PLAYER_POSITIONS, players);
-        String messageAsJson = message.jsonify();
+        removeCollectedItems();
+        spawnApples(); //todo spawn different items later
+
+        // prepare messages
+        WSMessage messageApplePositions = new WSMessage(OpCode.APPLE_POSITIONS, itemCoordinates);
+        String applePositionsAsJson = messageApplePositions.jsonify();
+        WSMessage messagePlayerPositions = new WSMessage(OpCode.PLAYER_POSITIONS, players);
+        String playerPositionsAsJson = messagePlayerPositions.jsonify();
         // send the "snakes" data to all players
         for (Map.Entry<Integer, Player> entrySet : participants.entrySet()){
             Player player = entrySet.getValue();
 
             if (player.connection.isOpen()) {
-                player.connection.send(messageAsJson);
+                player.connection.send(playerPositionsAsJson);
+                System.out.println("apples: " + applePositionsAsJson);
+                player.connection.send(applePositionsAsJson);
             }
         }
     }
 
+    // puts apples at free fields but can be used in the future
+    // to also add buffs / debuffs
+    private void spawnApples(){
+        HashSet<Coordinate> fieldCopy = new HashSet<>(fields);
+        for (Map.Entry<Integer, Player> entrySet : participants.entrySet()){
+            Player player = entrySet.getValue();
+            fieldCopy.removeAll(player.snake.occupiedFields);
+        }
+        fieldCopy.removeAll(itemCoordinates.keySet());
+
+        Map<Coordinate, Item> newApplePositions = new HashMap<>(apples- itemCoordinates.size());
+        Coordinate[] fieldCopyArray = fieldCopy.toArray(new Coordinate[fieldCopy.size()]);
+        for (int x = 0; x < apples- itemCoordinates.size(); x++){
+            newApplePositions.put(fieldCopyArray[random.nextInt(fieldCopyArray.length)], new Apple());
+        }
+
+        System.out.println("ADDING new apples: " + newApplePositions);
+        itemCoordinates.putAll(newApplePositions);
+
+        System.out.println(new Coordinate(1, 2).equals(new Coordinate(1, 2)));
+    }
+
+    private void removeCollectedItems(){
+        collectedItems.forEach(itemCoordinates::remove);
+    }
 
 }

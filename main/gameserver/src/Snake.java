@@ -1,10 +1,11 @@
+import Items.Apple;
+import Items.Item;
 import com.google.gson.annotations.Expose;
 
 import java.util.*;
 
 public class Snake {
-    @Expose(serialize = false, deserialize = false)
-    public transient int length = 3;
+
     @Expose(serialize = false, deserialize = false)
     public transient float speedFactor = 1;
     @Expose
@@ -16,18 +17,21 @@ public class Snake {
     @Expose(serialize = false, deserialize = false)
     private transient final Object directionMutex = new Object();
     @Expose
-    public boolean collided = false;
+    public boolean collided;
     @Expose
     private LinkedList<Coordinate> snakeFields;
     @Expose(serialize = false, deserialize = false)
-    private transient HashSet<Coordinate> occupiedFields;
-
-
-    Snake(){
+    public transient HashSet<Coordinate> occupiedFields;
+    @Expose(serialize = false, deserialize = false)
+    private final transient HashMap<Coordinate, Item> itemPositions;
+    @Expose(serialize = false, deserialize = false)
+    private final transient Set<Coordinate> collectedItems; //DO NOT represent player owned items - are used to delete items from itemPositions after every iteration
+    Snake(HashMap<Coordinate, Item> itemPositions, Set<Coordinate> collectedItems){
+        this.itemPositions = itemPositions;
+        this.collectedItems = collectedItems;
         snakeToStartPosition();
         snakeMovementDataReset();
     }
-
 
     private void preoccupyFields(){
         for (Coordinate c : Arrays.asList(
@@ -49,8 +53,8 @@ public class Snake {
         Coordinate head = snakeFields.getFirst();
 
         synchronized (directionMutex) {
-
             OpCode nextDirection = getNextFromDirectionOrLast();
+
             switch (nextDirection) {
                 case UP:
                     moveHelper(new Coordinate(head.x, head.y - 1)); //todo collision stuff
@@ -71,12 +75,30 @@ public class Snake {
     }
 
     private void moveHelper(Coordinate targetField){
+        // move snake one field
         snakeFields.addFirst(targetField);
-        occupiedFields.remove(snakeFields.removeLast()); // delete the last snake body part
         collided = occupiedFields.contains(targetField) || targetField.x >= Game.WORLD_WIDTH || targetField.x < 0 ||
                 targetField.y >= Game.WORLD_HEIGHT || targetField.y < 0;
         if (collided){
             lives -= 1;
+        } else {
+            occupiedFields.add(targetField);
+            // check for items at that field
+            Item i = itemPositions.get(targetField);
+
+            if (i == null){
+                // there was no apple, last body part deleted
+                occupiedFields.remove(snakeFields.removeLast());
+            } else {
+                // no matter the item, we remove it after every snake progressed (this equally fast snakes both get it - fairness)
+                collectedItems.add(targetField);
+                if (!(i instanceof Apple)) {
+                    // delete the last snake body part if we did not eat an apple
+                    occupiedFields.remove(snakeFields.removeLast());
+                    //todo here we check for all the other items if we add any
+                }
+            }
+
         }
     }
 
@@ -99,9 +121,9 @@ public class Snake {
     public void snakeMovementDataReset(){
         this.lastDirection = OpCode.UP;
         this.nextDirections = new BoundedQueue<>(3);
+        this.collided = false;
     }
 
-    // todo eigentlich sollte das ein clientseitiger check sein!
     public void changeDirection(OpCode direction){
         synchronized (directionMutex) {
             OpCode lastDirection = getLastFromDirectionOrLast();
@@ -131,37 +153,4 @@ public class Snake {
     }
 
 
-    static class Coordinate{
-        @Expose(serialize = false, deserialize = false)
-        private transient final int hashCode;
-        @Expose
-        public int x;
-        @Expose
-        public int y;
-
-        Coordinate(int x, int yPos){
-            this.x = x;
-            this.y = yPos;
-            hashCode = Objects.hash(x, yPos);
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (obj instanceof  Coordinate){
-                Coordinate nObj = (Coordinate) obj;
-                return this.x ==nObj.y && this.y == nObj.y;
-            }
-            return false;
-        }
-
-        @Override
-        public int hashCode() {
-            return hashCode;
-        }
-
-        @Override
-        public String toString() {
-            return "( " + x + ", " + y + ")";
-        }
-    }
 }
