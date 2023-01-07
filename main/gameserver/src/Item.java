@@ -1,0 +1,3 @@
+public enum Item {
+    Apple;
+}

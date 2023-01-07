@@ -1,6 +1,3 @@
-import Items.Apple;
-import Items.Item;
-
 import java.util.*;
 
 
@@ -33,7 +30,7 @@ public class Game {
         }
     }
 
-    private final HashMap<Coordinate, Item> itemCoordinates = new HashMap<>(apples);
+    private final Map<Coordinate, Item> itemCoordinates = new HashMap<>(apples);
     private final Set<Coordinate> collectedItems = new HashSet<>();
 
     // GAME DATA
@@ -125,7 +122,7 @@ public class Game {
         Map<Coordinate, Item> newApplePositions = new HashMap<>(apples- itemCoordinates.size());
         Coordinate[] fieldCopyArray = fieldCopy.toArray(new Coordinate[fieldCopy.size()]);
         for (int x = 0; x < apples- itemCoordinates.size(); x++){
-            newApplePositions.put(fieldCopyArray[random.nextInt(fieldCopyArray.length)], new Apple());
+            newApplePositions.put(fieldCopyArray[random.nextInt(fieldCopyArray.length)], Item.Apple);
         }
 
         System.out.println("ADDING new apples: " + newApplePositions);

@@ -9,9 +9,9 @@ class Coordinate {
     @Expose(serialize = false, deserialize = false)
     private transient final int hashCode;
     @Expose
-    public int x;
+    public final int x;
     @Expose
-    public int y;
+    public final int y;
 
     Coordinate(int x, int yPos) {
         this.x = x;
@@ -32,6 +32,7 @@ class Coordinate {
     public int hashCode() {
         return hashCode;
     }
+
 
     @Override
     public String toString() {

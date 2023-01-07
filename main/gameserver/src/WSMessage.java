@@ -1,8 +1,9 @@
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.Expose;
-import com.google.gson.annotations.SerializedName;
 import org.java_websocket.WebSocket;
+
+import java.util.Map;
 
 /**
  * A Message Type used for abstraction of the data our WebSocket deals with.
@@ -12,7 +13,9 @@ import org.java_websocket.WebSocket;
  */
 public class WSMessage implements WSServer.Message{
     @Expose(serialize = false, deserialize = false)
-    private static final Gson gsonBuilder = new GsonBuilder().create();
+    public static final Gson gsonBuilder = new GsonBuilder()
+            .enableComplexMapKeySerialization()
+            .create();
 
     @Expose(serialize=false, deserialize=false)
     private WebSocket connection;

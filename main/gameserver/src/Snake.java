@@ -1,5 +1,3 @@
-import Items.Apple;
-import Items.Item;
 import com.google.gson.annotations.Expose;
 
 import java.util.*;
@@ -28,10 +26,10 @@ public class Snake {
     @Expose(serialize = false, deserialize = false)
     public transient HashSet<Coordinate> occupiedFields;
     @Expose(serialize = false, deserialize = false)
-    private final transient HashMap<Coordinate, Item> itemPositions;
+    private final transient Map<Coordinate, Item> itemPositions;
     @Expose(serialize = false, deserialize = false)
     private final transient Set<Coordinate> collectedItems; //DO NOT represent player owned items - are used to delete items from itemPositions after every iteration
-    Snake(HashMap<Coordinate, Item> itemPositions, Set<Coordinate> collectedItems){
+    Snake(Map<Coordinate, Item> itemPositions, Set<Coordinate> collectedItems){
         this.itemPositions = itemPositions;
         this.collectedItems = collectedItems;
         snakeToStartPosition();
@@ -110,7 +108,7 @@ public class Snake {
             } else {
                 // no matter the item, we remove it after every snake progressed (this equally fast snakes both get it - fairness)
                 collectedItems.add(targetField);
-                if (!(i instanceof Apple)) {
+                if (!(i.equals(Item.Apple))) {
                     // delete the last snake body part if we did not eat an apple
                     occupiedFields.remove(snakeFields.removeLast());
                     //todo here we check for all the other items if we add any
