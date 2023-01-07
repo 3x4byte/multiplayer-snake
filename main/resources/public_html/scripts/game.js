@@ -118,14 +118,18 @@ function updatePlayers(data){
 
 function updateLives(lives, id){
     if(id === pid){
-        lives_field.innerText = lives;
+        lives_field.innerHTML = `<img class="heart_img" src="../images/heart.png">`.repeat(lives);
     }else{
-        lives_enemies_field[id - own_canvas_found].innerText = lives;
+        lives_enemies_field[id - own_canvas_found].innerHTML = `<img class="heart_img" src="../images/heart.png">`.repeat(lives);
     }
 }
 
 function updateCollision(is_collided, id){
     // TODO maybe animation?
+}
+
+function updateItems(data){
+    // TODO
 }
 
 function drawSnake(ctx, positions, size){
@@ -181,6 +185,7 @@ function handleMessage(websocketMessage){
 
     switch (message.opCode){
         case OpCode.PLAYER_POSITIONS: updatePlayers(message.content); break;
+        case OpCode.ITEM_POSITIONS: updateItems(message.content); break;
     }
 
 }
