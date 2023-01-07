@@ -23,7 +23,7 @@
     <h2>configure game</h2>
 
     <label>max players: </label>
-    <input type="number" name="max_players" value="6" min="4" max="9">
+    <input class="player_number" onchange="updatePlayerNumber()" type="number" name="max_players" value="6" min="4" max="9">
     <br>
 
     <h3>room for more Settings...</h3>
@@ -34,7 +34,7 @@
 
 
     <br>
-    <button class="create_lobby">create lobby</button>
+    <button class="create_lobby" onclick="createLobby()">create lobby</button>
 
 </div>
 </body>

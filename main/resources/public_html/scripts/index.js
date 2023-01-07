@@ -18,6 +18,7 @@ function updateGameId(){
 }
 function createGame(){
     if(username.length > 0){
+        localStorage.setItem("username", username);
         window.location.href = "html/configure_game.html";
     }else{
         highlightElement(username_input);
@@ -38,7 +39,6 @@ function joinGame(){
 
 function highlightElement(element){
     // highlight the element
-    console.log("highlighting...");
     element.classList.add("highlighted");
     // remove highlight after 3sec
     highlightElement.timer = setTimeout(() => element.classList.remove("highlighted"), 500);

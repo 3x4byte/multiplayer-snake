@@ -26,7 +26,8 @@ h1, h2, h3, h4{
 input{
     color: #222831;
     background: #EEEEEE;
-
+    text-align: center;
+    height: 20pt;
     border: #00ADB5 solid 2pt;
     border-radius: 5pt;
 }
@@ -44,4 +45,8 @@ button{
 button:hover{
     background: #00ADB5;
     color: #393E46;
+}
+
+.highlighted{
+    background: orange;
 }
