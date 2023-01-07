@@ -42,3 +42,7 @@ export const OpCode = {
     PLAYER_POSITIONS: 'PLAYER_POSITIONS',
     ITEM_POSITIONS: 'ITEM_POSITIONS'
 };
+
+export const ItemCode = {
+    Apple: 'Apple'
+};

@@ -1,4 +1,4 @@
-import { Message, OpCode } from '/scripts/communication.js';
+import { Message, OpCode, ItemCode } from '/scripts/communication.js';
 
 var socket;
 
@@ -101,7 +101,7 @@ function updatePlayers(data){
         if(id === pid){
             own_canvas_found = 1;
             ctx = canvas.getContext("2d");
-            drawSnake(ctx, snake.snakeFields, tile_size);
+            drawOwnSnake(ctx, snake.snakeFields, tile_size);
         }
         else{
             ctx = canvas_enemies[id-own_canvas_found].getContext("2d");
@@ -129,8 +129,82 @@ function updateCollision(is_collided, id){
 }
 
 function updateItems(data){
-    // TODO
+
+    for(let item of data){
+        let type = item[1];
+        let x = item[0].x;
+        let y = item[0].y;
+
+        switch (type){
+            case ItemCode.Apple: drawApple(x, y); break;
+        }
+
+    }
 }
+
+function drawApple(x, y){
+
+    let ctx = canvas.getContext("2d");
+
+    ctx.beginPath();
+    ctx.strokeStyle = "red";
+    ctx.fillStyle = "red";
+    ctx.ellipse(x*tile_size+(tile_size/2), y*tile_size+(tile_size/2), tile_size/4, tile_size/4, 0, 0, 360);
+    ctx.fill();
+    ctx.closePath();
+
+    for(let c of canvas_enemies){
+        ctx = c.getContext("2d");
+
+        ctx.beginPath();
+        ctx.strokeStyle = "red";
+        ctx.fillStyle = "red";
+        ctx.ellipse(x*tile_size_enemy+(tile_size_enemy/2), y*tile_size_enemy+(tile_size_enemy/2), tile_size_enemy/3, tile_size_enemy/3, 0, 0, 360);
+        ctx.fill();
+        ctx.closePath();
+    }
+
+}
+
+function drawOwnSnake(ctx, positions, size){
+
+    ctx.clearRect(0, 0, size*num_rows, size*num_rows);
+    ctx.beginPath();
+    // drawing head
+    ctx.fillStyle = "darkgreen";
+    let head = positions[0];
+    ctx.fillRect(head.x*size+size/3, head.y*size+size/3, size/3, size/3);
+
+    for(let i = 1; i < positions.length; i++){
+        ctx.fillStyle = "green";
+
+        // drawing center rect
+        ctx.fillRect(positions[i].x*size+size/3, positions[i].y*size+size/3, size/3, size/3);
+
+        //drawing connecting rect
+        if(positions[i].x < positions[i-1].x){
+            ctx.fillRect(positions[i].x*size+size/3*2, positions[i].y*size+size/3, size/3, size/3);
+            ctx.fillRect(positions[i-1].x*size, positions[i-1].y*size+size/3, size/3, size/3);
+
+        }else if(positions[i].x > positions[i-1].x){
+            ctx.fillRect(positions[i].x*size, positions[i].y*size+size/3, size/3, size/3);
+            ctx.fillRect(positions[i-1].x*size+size/3*2, positions[i-1].y*size+size/3, size/3, size/3);
+
+        }else if(positions[i].y < positions[i-1].y){
+            ctx.fillRect(positions[i].x*size+size/3, positions[i].y*size+size/3*2, size/3, size/3);
+            ctx.fillRect(positions[i-1].x*size+size/3, positions[i-1].y*size, size/3, size/3);
+
+        }else if(positions[i].y > positions[i-1].y) {
+            ctx.fillRect(positions[i].x*size+size/3, positions[i].y*size, size/3, size/3);
+            ctx.fillRect(positions[i-1].x*size+size/3, positions[i-1].y*size+size/3*2, size/3, size/3);
+
+        }
+    }
+    ctx.fill();
+    ctx.closePath();
+
+}
+
 
 function drawSnake(ctx, positions, size){
     let head = true;
@@ -149,6 +223,7 @@ function drawSnake(ctx, positions, size){
     ctx.fill();
     ctx.closePath();
 }
+
 
 function keyInput(evt){
     // whitelist of keys to be sent
