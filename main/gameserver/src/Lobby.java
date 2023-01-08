@@ -1,13 +1,21 @@
+import com.google.gson.annotations.Expose;
+
 import java.util.HashMap;
 
 
 public class Lobby {
+
+    @Expose
     public final String ID;
-    public String name;
-    private int maxLobbySize = 9;
-    HashMap<Integer, Player> members = new HashMap<>(); //requires manual sync
-    final Object membersRWLock = new Object();
-    Game game;
+    @Expose
+    private int lobbySize = 9;
+
+    @Expose(serialize = false, deserialize = false)
+    transient HashMap<Integer, Player> members = new HashMap<>(); //requires manual sync
+    @Expose(serialize = false, deserialize = false)
+    transient final Object membersRWLock = new Object();
+    @Expose(serialize = false, deserialize = false)
+    transient Game game;
 
     Lobby(String id){
         this.ID = id;
@@ -20,7 +28,7 @@ public class Lobby {
 
     public boolean join(Player player){
         synchronized (membersRWLock){
-            if (maxLobbySize - members.size() > 0){
+            if (lobbySize - members.size() > 0){
                 members.put(player.id, player);
                 return true;
             }

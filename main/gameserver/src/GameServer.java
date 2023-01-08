@@ -13,6 +13,9 @@ import java.util.concurrent.*;
 public class GameServer {
     private final int PORT = 5001;
     private boolean isRunning;
+    private final Random random = new Random();
+    private final Object lobbyCreationMutex = new Object();
+
     private final WSServer<WSMessage> server;
     private final ConcurrentMap<WebSocket, Player> players = new ConcurrentHashMap<>(); //requires concurrent - thread safe access
     private final ConcurrentMap<String, Lobby> lobbies = new ConcurrentHashMap<>(); //maps lobby ids to lobbies
@@ -44,6 +47,8 @@ public class GameServer {
                     return handleJoinLobby(message);
                 case LEAVE_LOBBY:
                     return handleLeaveLobby(message);
+                case CREATE_LOBBY:
+                    return handleCreateLobby(message);
                 case UP: //intentional fall throughs
                 case DOWN:
                 case LEFT:
@@ -152,6 +157,19 @@ public class GameServer {
         Player player = players.get(message.getSender());
         player.snake.changeDirection(message.getOpcode()); //gameData should not be null
         return Optional.empty();
+    }
+
+    public Optional<WSMessage> handleCreateLobby(WSMessage message){
+        String lobbyCode;
+        synchronized (lobbyCreationMutex) {
+            do {
+                lobbyCode = "#" + random.nextInt(1000);
+            } while (lobbies.containsKey(lobbyCode));
+        }
+
+        WSMessage response = new WSMessage(OpCode.CREATE_LOBBY_RESPONSE, new Lobby(lobbyCode));
+
+        return Optional.of(response);
     }
 
 }

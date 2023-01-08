@@ -12,6 +12,9 @@ public class Player {
 
     @Expose
     public final int id;
+    @Expose
+    public String name;
+
     @Expose(serialize = false, deserialize = false)
     public String subscribedToLobbyId;
     @Expose
