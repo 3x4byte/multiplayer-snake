@@ -17,6 +17,8 @@ var width_enemies;
 var num_rows = 10;
 var tile_size;
 var tile_size_enemy;
+var apple_x;
+var apple_y;
 
 window.onload = windowLoaded;
 
@@ -41,7 +43,7 @@ function windowLoaded(){
 
     windowResized();
 }
-function windowResized(evt){
+function windowResized(){
     width = window.innerWidth * 0.34;
     canvas.setAttribute("height", width);
     canvas.setAttribute("width", width);
@@ -101,18 +103,20 @@ function updatePlayers(data){
         if(id === pid){
             own_canvas_found = 1;
             ctx = canvas.getContext("2d");
+            ctx.clearRect(0, 0, tile_size*num_rows, tile_size*num_rows);
+            drawApple(apple_x, apple_y, ctx, tile_size);
             drawOwnSnake(ctx, snake.snakeFields, tile_size);
         }
         else{
             ctx = canvas_enemies[id-own_canvas_found].getContext("2d");
+            ctx.clearRect(0, 0, tile_size_enemy*num_rows, tile_size_enemy*num_rows);
+            drawApple(apple_x, apple_y, ctx, tile_size_enemy);
             drawSnake(ctx, snake.snakeFields, tile_size_enemy);
         }
-
         updateLives(snake.lives, id);
         updateCollision(snake.collided, id);
 
     }
-
     drawGrid();
 }
 
@@ -136,39 +140,28 @@ function updateItems(data){
         let y = item[0].y;
 
         switch (type){
-            case ItemCode.Apple: drawApple(x, y); break;
+            // case ItemCode.Apple: drawApple(x, y); break;
+            case ItemCode.Apple: apple_x = x;
+                                 apple_y = y;
+                                 break;
+
         }
 
     }
 }
 
-function drawApple(x, y){
-
-    let ctx = canvas.getContext("2d");
+function drawApple(x, y, ctx, size){
 
     ctx.beginPath();
-    ctx.strokeStyle = "red";
     ctx.fillStyle = "red";
-    ctx.ellipse(x*tile_size+(tile_size/2), y*tile_size+(tile_size/2), tile_size/4, tile_size/4, 0, 0, 360);
+    ctx.ellipse(x*size+(size/2), y*size+(size/2), size/3, size/3, 0, 0, 360);
     ctx.fill();
     ctx.closePath();
-
-    for(let c of canvas_enemies){
-        ctx = c.getContext("2d");
-
-        ctx.beginPath();
-        ctx.strokeStyle = "red";
-        ctx.fillStyle = "red";
-        ctx.ellipse(x*tile_size_enemy+(tile_size_enemy/2), y*tile_size_enemy+(tile_size_enemy/2), tile_size_enemy/3, tile_size_enemy/3, 0, 0, 360);
-        ctx.fill();
-        ctx.closePath();
-    }
 
 }
 
 function drawOwnSnake(ctx, positions, size){
 
-    ctx.clearRect(0, 0, size*num_rows, size*num_rows);
     ctx.beginPath();
     // drawing head
     ctx.fillStyle = "darkgreen";
@@ -208,7 +201,6 @@ function drawOwnSnake(ctx, positions, size){
 
 function drawSnake(ctx, positions, size){
     let head = true;
-    ctx.clearRect(0, 0, size*num_rows, size*num_rows);
     ctx.beginPath();
     // loops over the tail coordinates
     for(let position of positions){
@@ -262,5 +254,4 @@ function handleMessage(websocketMessage){
         case OpCode.PLAYER_POSITIONS: updatePlayers(message.content); break;
         case OpCode.ITEM_POSITIONS: updateItems(message.content); break;
     }
-
 }

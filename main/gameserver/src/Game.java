@@ -102,9 +102,9 @@ public class Game {
             Player player = entrySet.getValue();
 
             if (player.connection.isOpen()) {
-                player.connection.send(playerPositionsAsJson);
                 System.out.println("apples: " + applePositionsAsJson);
                 player.connection.send(applePositionsAsJson);
+                player.connection.send(playerPositionsAsJson); // applePositions have to be sent first (UI)
             }
         }
     }
