@@ -5,22 +5,21 @@
  */
 enum OpCode implements WSServer.OpCode {
     ZERO,
-    SET_NAME,
-    CONFIGURE_LOBBY,
-    CONFIGURE_LOBBY_RESPONSE,
-    CREATE_LOBBY,
-    START_GAME,
-    START_GAME_RESPONSE,
-    CREATE_LOBBY_RESPONSE,
-    JOIN_LOBBY_RESPONSE,
-    JOIN_LOBBY,
-    //JOIN_FAILED,
-    LEAVE_LOBBY,
-    UP,
-    DOWN,
-    LEFT,
-    RIGHT,
-    PLAYER_POSITIONS, //Player Objects List
-    ITEM_POSITIONS // List of Coordinates
+    SET_NAME, //expects a string
+    CONFIGURE_LOBBY, // nothing
+    CONFIGURE_LOBBY_RESPONSE, // sends a lobby
+    CREATE_LOBBY, // expects a lobby
+    CREATE_LOBBY_RESPONSE, // sends a lobby
+    START_GAME, // nothing
+    START_GAME_RESPONSE, //nothing
+    JOIN_LOBBY, // expects a string
+    JOIN_LOBBY_RESPONSE, // sends a lobby
+    LEAVE_LOBBY, // nothing
+    UP, // expects a string
+    DOWN, // expects a string
+    LEFT, // expects a string
+    RIGHT, // expects a string
+    PLAYER_POSITIONS, //sends a player objects list
+    ITEM_POSITIONS // sends a list of coordinates
     ;
 }

@@ -200,7 +200,7 @@ public class GameServer {
         lobbies.put(lobby.ID, lobby);
         lobby.join(players.get(message.getSender()));
 
-        /*
+        /* this is how it's supposed to work
         Lobby lobby = message.getContent(Lobby.class);
         lobby.join(players.get(message.getSender()));
         lobbies.put(lobby.ID, lobby); //update the lobby
@@ -214,8 +214,6 @@ public class GameServer {
 
     public Optional<WSMessage> handleSetName(WSMessage message){
         players.get(message.getSender()).name = message.getContent(String.class);
-        System.out.println(players.get(message.getSender()).name);
-
         return Optional.empty();
     }
 
