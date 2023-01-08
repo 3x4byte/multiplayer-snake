@@ -9,7 +9,7 @@ public class Lobby {
     public final String ID;
     @Expose
     private int lobbySize = 9;
-    @Expose
+    @Expose(deserialize = false)
     private HashMap<Integer, Player> members = new HashMap<>(); //requires manual sync
 
     @Expose(serialize = false, deserialize = false)
