@@ -16,6 +16,7 @@ function updateUsername(){
 function updateGameId(){
     game_id = game_id_input.value;
 }
+
 function createGame(){
     if(username.length > 0){
         localStorage.setItem("username", username);

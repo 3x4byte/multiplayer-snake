@@ -47,8 +47,8 @@ public class GameServer {
                     return handleJoinLobby(message);
                 case LEAVE_LOBBY:
                     return handleLeaveLobby(message);
-                case CREATE_LOBBY:
-                    return handleCreateLobby(message);
+                case CONFIGURE_LOBBY:
+                    return handleConfigureLobby(message);
                 case UP: //intentional fall throughs
                 case DOWN:
                 case LEFT:
@@ -159,15 +159,18 @@ public class GameServer {
         return Optional.empty();
     }
 
-    public Optional<WSMessage> handleCreateLobby(WSMessage message){
+    public Optional<WSMessage> handleConfigureLobby(WSMessage message){
         String lobbyCode;
+        Lobby lobby;
         synchronized (lobbyCreationMutex) {
             do {
                 lobbyCode = "#" + random.nextInt(1000);
             } while (lobbies.containsKey(lobbyCode));
+            lobby = new Lobby(lobbyCode);
+            lobbies.put(lobbyCode, lobby);
         }
 
-        WSMessage response = new WSMessage(OpCode.CREATE_LOBBY_RESPONSE, new Lobby(lobbyCode));
+        WSMessage response = new WSMessage(OpCode.CONFIGURE_LOBBY_RESPONSE, lobby);
 
         return Optional.of(response);
     }

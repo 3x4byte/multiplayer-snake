@@ -5,6 +5,9 @@
  */
 enum OpCode implements WSServer.OpCode {
     ZERO,
+
+    CONFIGURE_LOBBY,
+    CONFIGURE_LOBBY_RESPONSE,
     CREATE_LOBBY,
     CREATE_LOBBY_RESPONSE,
     JOIN_LOBBY,
