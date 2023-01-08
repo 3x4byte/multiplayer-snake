@@ -61,7 +61,7 @@ function configureGame(){
 
         // "redirect"
         index.style.display = "none";
-        configure_game.style.display = "flex";
+        configure_game.style.display = "contents";
 
     }else{
         highlightElement(username_input);
@@ -78,7 +78,7 @@ function joinGame(){
 
         // "redirect"
         index.style.display = "none";
-        lobby.style.display = "flex";
+        lobby.style.display = "contents";
     }
     // TODO send server join data
 }
@@ -115,7 +115,7 @@ function createLobby(){
 
     // "redirect"
     configure_game.style.display = "none";
-    lobby.style.display = "flex";
+    lobby.style.display = "contents";
 
 }
 
@@ -129,7 +129,12 @@ function highlightElement(element){
 //endregion
 
 //region lobby
+function startGame(){
+    // TODO send lobby object to server
 
+    lobby.style.display = "none";
+    game.style.display = "contents";
+}
 //endregion
 
 //region game
@@ -352,10 +357,11 @@ function keyInput(evt){
     }
     if(key_filter.includes(evt.key)){
         let msg = new Message(key_mapping[evt.key]);
-
-        if(msg.opCode !== last_key_input){
-            last_key_input = msg.opCode;
-            socket.send(msg.toJson());
+        if(game.style.display !== "none") {
+            if (msg.opCode !== last_key_input) {
+                last_key_input = msg.opCode;
+                socket.send(msg.toJson());
+            }
         }
 
     }
