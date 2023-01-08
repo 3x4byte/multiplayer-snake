@@ -28,7 +28,7 @@ public class Snake {
     @Expose(serialize = false, deserialize = false)
     private final transient Map<Coordinate, Item> itemPositions;
     @Expose(serialize = false, deserialize = false)
-    private final transient Set<Coordinate> collectedItems; //DO NOT represent player owned items - are used to delete items from itemPositions after every iteration
+    public final transient Set<Coordinate> collectedItems; //DO NOT represent player owned items - are used to delete items from itemPositions after every iteration
     Snake(Map<Coordinate, Item> itemPositions, Set<Coordinate> collectedItems){
         this.itemPositions = itemPositions;
         this.collectedItems = collectedItems;

@@ -7,14 +7,14 @@ import java.util.*;
  */
 public class Game {
     public static final float CYCLE_DURATION_MS = 1000f;
-    public static final float TICKS_PER_CYCLE = 1f;
+    public static final float TICKS_PER_CYCLE = 2f;
     public static final float TICK_DURATION = CYCLE_DURATION_MS / TICKS_PER_CYCLE;
     public static final float SNAKE_SPEED = TICK_DURATION; // the snake speed equals the TICK_DURATION, which as of right now is 1/s
 
     public static final int WORLD_WIDTH = 10;
     public static final int WORLD_HEIGHT = WORLD_WIDTH;
 
-    public static final int apples = 1; // the amount of apples that should be present at all time
+    public static final int apples = 2; // the amount of apples that should be present at all time
 
     public long lastUpdatedAt = 0; //lobby will be updated as soon as it is created
     public final Object lastUpdatedAtRWMutex = new Object();
@@ -127,12 +127,11 @@ public class Game {
 
         System.out.println("ADDING new apples: " + newApplePositions);
         itemCoordinates.putAll(newApplePositions);
-
-        System.out.println(new Coordinate(1, 2).equals(new Coordinate(1, 2)));
     }
 
     private void removeCollectedItems(){
         collectedItems.forEach(itemCoordinates::remove);
+        participants.values().forEach(p -> p.snake.collectedItems.clear());
     }
 
 }
