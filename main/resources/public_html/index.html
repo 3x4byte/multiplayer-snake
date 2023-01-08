@@ -3,36 +3,133 @@
 <head>
     <meta charset="UTF-8">
     <link rel="stylesheet" href="static/index.css">
+    <link rel="stylesheet" href="static/lobby.css">
+    <link rel="stylesheet" href="static/game.css">
     <link rel="stylesheet" href="static/style.css">
     <script src="scripts/index.js"></script>
     <title>Snake</title>
 
-    <script>
-        let socket = new WebSocket("ws://localhost:5001");
-    </script>
 </head>
 <body>
 
-<!-- -----REMOVE LATER------------------ -->
-<p>FOR TESTING - REMOVE LATER</p>
-<ul>
-    <li><a href="index.html">index</a></li>
-    <li><a href="html/configure_game.html">configure game</a></li>
-    <li><a href="html/lobby.html">lobby</a></li>
-    <li><a href="html/game.html">game</a></li>
-</ul>
-<!-- -----REMOVE LATER------------------ -->
+<div class="index" style="display: flex">
+    <div class="container">
+        <h1>SNAKE ROYALE</h1>
+        <input class="username" type="search" placeholder="username" onchange="updateUsername()" required>
+        <br>
+        <button class="create_game" onclick="configureGame()">create new game</button>
+        <br>
+        <input class="game_id" type="search" placeholder="#000000" onchange="updateGameId()">
+        <br>
+        <button class="join" onclick="joinGame()">join game</button>
 
-<div class="container">
-    <h1>SNAKE ROYALE</h1>
-    <input class="username" type="search" placeholder="username" onchange="updateUsername()" required>
-    <br>
-    <button class="create_game" onclick="createGame()">create new game</button>
-    <br>
-    <input class="game_id" type="search" placeholder="#000000" onchange="updateGameId()">
-    <br>
-    <button class="join" onclick="joinGame()">join game</button>
-
+    </div>
 </div>
+
+<div class="configure_game" style="display: none">
+    <div class="container">
+        <h1>SNAKE ROYALE</h1>
+        <h2>configure game</h2>
+
+        <label>max players: </label>
+        <input class="player_number" onchange="updatePlayerNumber()" type="number" name="max_players" value="6" min="4" max="9">
+        <br>
+
+        <h3>room for more Settings...</h3>
+        o <br>
+        o <br>
+        o <br>
+        o <br>
+
+        <br>
+        <button class="create_lobby" onclick="createLobby()">create lobby</button>
+
+    </div>
+</div>
+
+<div class="lobby" style="display: none">
+    <div class="container">
+        <h1>SNAKE ROYALE</h1>
+        <h2>Lobby #000000</h2>
+
+        <ul class="player_list">
+            <li>Player1</li>
+            <li>Player2</li>
+            <li>Player3</li>
+            <li>Player4</li>
+            <li>Player5</li>
+            <li>Player6</li>
+            <li>Player7</li>
+            <li>Player8</li>
+            <li>Player9</li>
+        </ul>
+
+        <button class="start_game" onclick="startGame()">start game</button>
+    </div>
+</div>
+
+<div class="game" style="display: none">
+    <div class="container">
+        <h1>Snake Royale</h1>
+
+        <div class="game">
+
+            <div class="info-bar">
+                <span class="own_lives"> <img class="heart_img" src="../images/heart.png"> </span> <span class="own_name">name </span>
+            </div>
+
+            <div class="game-views">
+                <div class="left">
+                    <div class="player">
+                        <div class="info-bar"> <span class="lives"> <img class="heart_img" src="../images/heart.png"> </span> <span class="name">name </span> </div>
+                        <canvas class="enemy"></canvas>
+                    </div>
+
+                    <div class="player">
+                        <div class="info-bar"> <span class="lives"> <img class="heart_img" src="../images/heart.png"> </span> <span class="name">name </span> </div>
+                        <canvas class="enemy"></canvas>
+                    </div>
+
+                    <div class="player">
+                        <div class="info-bar"> <span class="lives"> <img class="heart_img" src="../images/heart.png"> </span> <span class="name">name </span> </div>
+                        <canvas class="enemy"></canvas>
+                    </div>
+
+                    <div class="player">
+                        <div class="info-bar"> <span class="lives"> <img class="heart_img" src="../images/heart.png"> </span> <span class="name">name </span> </div>
+                        <canvas class="enemy"></canvas>
+                    </div>
+                </div>
+
+                <div class="mid">
+                    <canvas class="own_game"></canvas>
+                </div>
+
+                <div class="right">
+                    <div class="player">
+                        <div class="info-bar"> <span class="lives"> <img class="heart_img" src="../images/heart.png"> </span> <span class="name">name </span> </div>
+                        <canvas class="enemy"></canvas>
+                    </div>
+
+                    <div class="player">
+                        <div class="info-bar"> <span class="lives"> <img class="heart_img" src="../images/heart.png"> </span> <span class="name">name </span> </div>
+                        <canvas class="enemy"></canvas>
+                    </div>
+
+                    <div class="player">
+                        <div class="info-bar"> <span class="lives"> <img class="heart_img" src="../images/heart.png"> </span> <span class="name">name </span> </div>
+                        <canvas class="enemy"></canvas>
+                    </div>
+
+                    <div class="player">
+                        <div class="info-bar"> <span class="lives"> <img class="heart_img" src="../images/heart.png"> </span> <span class="name">name </span> </div>
+                        <canvas class="enemy"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 </body>
 </html>
