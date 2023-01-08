@@ -17,8 +17,7 @@ var width_enemies;
 var num_rows = 10;
 var tile_size;
 var tile_size_enemy;
-var apple_x;
-var apple_y;
+var apples_coordinates;
 
 window.onload = windowLoaded;
 
@@ -104,13 +103,13 @@ function updatePlayers(data){
             own_canvas_found = 1;
             ctx = canvas.getContext("2d");
             ctx.clearRect(0, 0, tile_size*num_rows, tile_size*num_rows);
-            drawApple(apple_x, apple_y, ctx, tile_size);
+            drawApples(apples_coordinates, ctx, tile_size);
             drawOwnSnake(ctx, snake.snakeFields, tile_size);
         }
         else{
             ctx = canvas_enemies[id-own_canvas_found].getContext("2d");
             ctx.clearRect(0, 0, tile_size_enemy*num_rows, tile_size_enemy*num_rows);
-            drawApple(apple_x, apple_y, ctx, tile_size_enemy);
+            drawApples(apples_coordinates, ctx, tile_size_enemy);
             drawSnake(ctx, snake.snakeFields, tile_size_enemy);
         }
         updateLives(snake.lives, id);
@@ -133,7 +132,7 @@ function updateCollision(is_collided, id){
 }
 
 function updateItems(data){
-
+    apples_coordinates = [];
     for(let item of data){
         let type = item[1];
         let x = item[0].x;
@@ -141,20 +140,19 @@ function updateItems(data){
 
         switch (type){
             // case ItemCode.Apple: drawApple(x, y); break;
-            case ItemCode.Apple: apple_x = x;
-                                 apple_y = y;
-                                 break;
+            case ItemCode.Apple: apples_coordinates.push([x,y]); break;
 
         }
 
     }
 }
 
-function drawApple(x, y, ctx, size){
-
+function drawApples(apples, ctx, size){
     ctx.beginPath();
     ctx.fillStyle = "red";
-    ctx.ellipse(x*size+(size/2), y*size+(size/2), size/3, size/3, 0, 0, 360);
+    for(let apple of apples){
+        ctx.ellipse(apple[0]*size+(size/2), apple[1]*size+(size/2), size/3, size/3, 0, 0, 360);
+    }
     ctx.fill();
     ctx.closePath();
 
