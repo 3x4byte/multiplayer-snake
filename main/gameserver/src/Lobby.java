@@ -9,9 +9,9 @@ public class Lobby {
     public final String ID;
     @Expose
     private int lobbySize = 9;
+    @Expose
+    private HashMap<Integer, Player> members = new HashMap<>(); //requires manual sync
 
-    @Expose(serialize = false, deserialize = false)
-    transient HashMap<Integer, Player> members = new HashMap<>(); //requires manual sync
     @Expose(serialize = false, deserialize = false)
     transient final Object membersRWLock = new Object();
     @Expose(serialize = false, deserialize = false)
