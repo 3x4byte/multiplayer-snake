@@ -22,7 +22,7 @@ public class WSMessage implements WSServer.Message{
     @Expose
     private OpCode opCode;
     @Expose
-    private Object content;
+    public Object content;
 
 
     /**
@@ -67,6 +67,7 @@ public class WSMessage implements WSServer.Message{
 
     @Override
     public <T> T getContent(Class<T> contentClass) {
+
         return contentClass.cast(this.content);
     }
 

@@ -4,6 +4,7 @@ var index;
 var configure_game;
 var lobby;
 var game;
+var sLobby;
 
 window.onload = windowLoaded;
 
@@ -50,6 +51,10 @@ var game_id;
 
 function updateUsername(){
     username = username_input.value;
+    if (socket.readyState === WebSocket.OPEN) {
+        socket.send(new Message(OpCode.SET_NAME, username).toJson())
+    }
+
 }
 function updateGameId(){
     game_id = game_id_input.value;
@@ -59,14 +64,20 @@ function configureGame(){
     if(username.length > 0){
         localStorage.setItem("username", username);
 
-        // "redirect"
-        index.style.display = "none";
-        configure_game.style.display = "contents";
-
+        // "redirect - "
+        updateUsername()
+        socket.send(new Message(OpCode.CONFIGURE_LOBBY).toJson()) //redirect is now round trip
     }else{
         highlightElement(username_input);
     }
 }
+
+function handleConfigureGameResponse(msgContent){
+    sLobby = msgContent
+    index.style.display = "none";
+    configure_game.style.display = "contents";
+}
+
 
 function joinGame(){
     if(username.length === 0){
@@ -77,11 +88,19 @@ function joinGame(){
     else{
 
         // "redirect"
+        updateUsername()
+        socket.send(new Message(OpCode.JOIN_LOBBY, game_id).toJson()) // is now round trip
+    }
+}
+
+function handleJoinGameResponse(msgContent){
+    if (msgContent != null){
+        sLobby = msgContent
         index.style.display = "none";
         lobby.style.display = "contents";
     }
-    // TODO send server join data
 }
+
 
 function highlightElement(element){
     // highlight the element
@@ -97,6 +116,7 @@ function highlightElement(element){
 var player_number_field;
 var player_number;
 
+
 function updatePlayerNumber(){
     player_number = parseInt(player_number_field.value);
 }
@@ -111,12 +131,15 @@ function createLobby(){
     if(player_number > 8)
         return highlightElement(player_number_field);
 
-    // TODO send data to server
-
     // "redirect"
+    sLobby.lobbySize = player_number
+    socket.send(new Message(OpCode.CREATE_LOBBY, sLobby).toJson()) //is now a round trip
+}
+
+function handleCreateLobbyResponse(msgContent){
+    sLobby = msgContent
     configure_game.style.display = "none";
     lobby.style.display = "contents";
-
 }
 
 function highlightElement(element){
@@ -130,8 +153,11 @@ function highlightElement(element){
 
 //region lobby
 function startGame(){
-    // TODO send lobby object to server
+    socket.send(new Message(OpCode.START_GAME).toJson())
+    // is now round trip
+}
 
+function handleStartGameResponse(){
     lobby.style.display = "none";
     game.style.display = "contents";
 }
@@ -375,8 +401,13 @@ function handleMessage(websocketMessage){
     switch (message.opCode){
         case OpCode.PLAYER_POSITIONS: updatePlayers(message.content); break;
         case OpCode.ITEM_POSITIONS: updateItems(message.content); break;
+        case OpCode.CONFIGURE_LOBBY_RESPONSE: handleConfigureGameResponse(message.content); break;
+        case OpCode.CREATE_LOBBY_RESPONSE: handleCreateLobbyResponse(message.content); break
+        case OpCode.JOIN_LOBBY_RESPONSE: handleJoinGameResponse(message.content); break
+        case OpCode.START_GAME_RESPONSE: handleStartGameResponse(); break
     }
 }
+
 
 //endregion
 
@@ -414,10 +445,16 @@ class Message {
  */
 const OpCode = {
     ZERO: 'ZERO',
+    SET_NAME: 'SET_NAME',
+    CONFIGURE_LOBBY: 'CONFIGURE_LOBBY',
+    CONFIGURE_LOBBY_RESPONSE: 'CONFIGURE_LOBBY_RESPONSE',
     CREATE_LOBBY: 'CREATE_LOBBY',
+    CREATE_LOBBY_RESPONSE: 'CREATE_LOBBY_RESPONSE',
     JOIN_LOBBY: 'JOIN_LOBBY',
-    JOIN_FAILED: 'JOIN_FAILED',
+    JOIN_LOBBY_RESPONSE: 'JOIN_LOBBY_RESPONSE',
     LEAVE_LOBBY: 'LEAVE_LOBBY',
+    START_GAME: 'START_GAME',
+    START_GAME_RESPONSE: 'START_GAME_RESPONSE',
     UP: 'UP',
     DOWN: 'DOWN',
     LEFT: 'LEFT',
