@@ -15,18 +15,17 @@ public class BoundedQueue<T> extends LinkedList<T> {
 
     @Override
     public boolean add(T t) {
-        if (size() >= this.limit) {
-            removeLast();
+        if (size() < this.limit) {
+            return super.add(t);
         }
-        return super.add(t);
+        return false;
     }
 
     @Override
     public void addLast(T t) {
-        if (size() >= this.limit) {
-            removeLast();
+        if (size() < this.limit) {
+            super.addLast(t);
         }
-        super.addLast(t);
     }
 
     @Override

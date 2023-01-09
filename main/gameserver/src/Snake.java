@@ -29,6 +29,10 @@ public class Snake {
     private final transient Map<Coordinate, Item> itemPositions;
     @Expose(serialize = false, deserialize = false)
     public final transient Set<Coordinate> collectedItems; //DO NOT represent player owned items - are used to delete items from itemPositions after every iteration
+    @Expose(serialize = false, deserialize = false)
+    public transient boolean doesAcceptMovementData = false;
+
+
     Snake(Map<Coordinate, Item> itemPositions, Set<Coordinate> collectedItems){
         this.itemPositions = itemPositions;
         this.collectedItems = collectedItems;
@@ -65,6 +69,7 @@ public class Snake {
         Coordinate head = snakeFields.getFirst();
 
         synchronized (directionMutex) {
+            doesAcceptMovementData = true;
             OpCode nextDirection = getNextFromDirectionOrLast();
 
             switch (nextDirection) {
@@ -147,9 +152,12 @@ public class Snake {
      * Resets all fields related to the movement of the snake.
      */
     public void snakeMovementDataReset(){
-        this.lastDirection = OpCode.UP;
-        this.nextDirections = new BoundedQueue<>(3);
-        this.collided = false;
+        synchronized (directionMutex) {
+            doesAcceptMovementData = false;
+            this.lastDirection = OpCode.UP;
+            this.nextDirections = new BoundedQueue<>(2);
+            this.collided = false;
+        }
     }
 
     /**
@@ -157,28 +165,30 @@ public class Snake {
      */
     public void changeDirection(OpCode direction){
         synchronized (directionMutex) {
-            OpCode lastDirection = getLastFromDirectionOrLast();
-            switch (direction) {
-                case UP:
-                    if (!lastDirection.equals(OpCode.DOWN)) {
-                        nextDirections.addLast(direction);
-                    }
-                    break;
-                case DOWN:
-                    if (!lastDirection.equals(OpCode.UP)) {
-                        nextDirections.addLast(direction);
-                    }
-                    break;
-                case LEFT:
-                    if (!lastDirection.equals(OpCode.RIGHT)) {
-                        nextDirections.addLast(direction);
-                    }
-                    break;
-                case RIGHT:
-                    if (!lastDirection.equals(OpCode.LEFT)) {
-                        nextDirections.addLast(direction);
-                    }
-                    break;
+            if (doesAcceptMovementData) {
+                OpCode lastDirection = getLastFromDirectionOrLast();
+                switch (direction) {
+                    case UP:
+                        if (!lastDirection.equals(OpCode.DOWN)) {
+                            nextDirections.addLast(direction);
+                        }
+                        break;
+                    case DOWN:
+                        if (!lastDirection.equals(OpCode.UP)) {
+                            nextDirections.addLast(direction);
+                        }
+                        break;
+                    case LEFT:
+                        if (!lastDirection.equals(OpCode.RIGHT)) {
+                            nextDirections.addLast(direction);
+                        }
+                        break;
+                    case RIGHT:
+                        if (!lastDirection.equals(OpCode.LEFT)) {
+                            nextDirections.addLast(direction);
+                        }
+                        break;
+                }
             }
         }
     }
