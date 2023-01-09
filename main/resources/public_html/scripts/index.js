@@ -29,6 +29,10 @@ function windowLoaded(){
     player_number = player_number_field.value;
     //------------------------
 
+    // lobby
+    game_id_label_field = document.querySelector(".game_id_label");
+    //------------------------
+
     //game
     socket.onmessage = handleMessage;
 
@@ -51,9 +55,11 @@ var game_id;
 
 function updateUsername(){
     username = username_input.value;
+    /* updates every time the input changes
     if (socket.readyState === WebSocket.OPEN) {
         socket.send(new Message(OpCode.SET_NAME, username).toJson())
     }
+    */
 
 }
 function updateGameId(){
@@ -65,7 +71,9 @@ function configureGame(){
         localStorage.setItem("username", username);
 
         // "redirect - "
-        updateUsername()
+        if (socket.readyState === WebSocket.OPEN) {
+            socket.send(new Message(OpCode.SET_NAME, username).toJson())
+        }
         socket.send(new Message(OpCode.CONFIGURE_LOBBY).toJson()) //redirect is now round trip
     }else{
         highlightElement(username_input);
@@ -88,8 +96,8 @@ function joinGame(){
     else{
 
         // "redirect"
-        updateUsername()
-        socket.send(new Message(OpCode.JOIN_LOBBY, game_id).toJson()) // is now round trip
+        socket.send(new Message(OpCode.SET_NAME, username).toJson());
+        socket.send(new Message(OpCode.JOIN_LOBBY, game_id).toJson()); // is now round trip
     }
 }
 
@@ -132,14 +140,17 @@ function createLobby(){
         return highlightElement(player_number_field);
 
     // "redirect"
-    sLobby.lobbySize = player_number
-    socket.send(new Message(OpCode.CREATE_LOBBY, sLobby).toJson()) //is now a round trip
+    sLobby.lobbySize = String(player_number);
+    socket.send(new Message(OpCode.CREATE_LOBBY, sLobby).toJson()); //is now a round trip
 }
 
 function handleCreateLobbyResponse(msgContent){
-    sLobby = msgContent
+    sLobby = msgContent;
     configure_game.style.display = "none";
     lobby.style.display = "contents";
+
+    // displaying lobby id
+    game_id_label_field.innerText = msgContent.ID;
 }
 
 function highlightElement(element){
@@ -152,8 +163,11 @@ function highlightElement(element){
 //endregion
 
 //region lobby
+
+var game_id_label_field;
+
 function startGame(){
-    socket.send(new Message(OpCode.START_GAME).toJson())
+    socket.send(new Message(OpCode.START_GAME).toJson());
     // is now round trip
 }
 

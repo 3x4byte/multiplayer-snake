@@ -19,7 +19,7 @@
         <br>
         <button class="create_game" onclick="configureGame()">create new game</button>
         <br>
-        <input class="game_id" type="search" placeholder="#000000" onchange="updateGameId()">
+        <input class="game_id" type="search" placeholder="#000" onchange="updateGameId()">
         <br>
         <button class="join" onclick="joinGame()">join game</button>
 
@@ -50,7 +50,7 @@
 <div class="lobby" style="display: none">
     <div class="container">
         <h1>SNAKE ROYALE</h1>
-        <h2>Lobby #000000</h2>
+        <h2>Lobby <span class="game_id_label">#000</span></h2>
 
         <ul class="player_list">
             <li>Player1</li>
