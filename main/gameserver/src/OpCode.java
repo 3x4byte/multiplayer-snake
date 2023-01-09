@@ -5,6 +5,7 @@
  */
 enum OpCode implements WSServer.OpCode {
     ZERO,
+    CONNECTION_RESPONSE, // sends a player
     SET_NAME, //expects a string
     CONFIGURE_LOBBY, // nothing
     CONFIGURE_LOBBY_RESPONSE, // sends a lobby

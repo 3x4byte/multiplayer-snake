@@ -57,7 +57,8 @@ public class GameServer {
                     return handleSetName(message);
                 case START_GAME:
                     return handleStartGameResponse(message);
-                case UP: //intentional fall throughs
+                //intentional fall throughs
+                case UP:
                 case DOWN:
                 case LEFT:
                 case RIGHT:
@@ -80,16 +81,9 @@ public class GameServer {
                     case OPENED: {
                             Player p = new Player(conn);
                             players.put(conn, p);
+                            conn.send(new WSMessage(OpCode.CONNECTION_RESPONSE, p).jsonify());
                             System.out.println("player: " + players.get(conn).id + " arrived");
 
-                            // todo only for lobby output testing
-                        /*
-                            Lobby l = new Lobby("A");
-                            System.out.println("Player joined" + l.join(p));
-                            l.startGame();
-                            lobbies.put("A", l);
-
-                         */
                         break;
                     }
                     case CLOSED: {
