@@ -27,91 +27,15 @@
 </div>
 
 <div class="configure_game" style="display: none">
-    <%- include('../html/configure_game'); %>
+    <%- include('configure_game'); %>
 </div>
 
 <div class="lobby" style="display: none">
-    <div class="container">
-        <h1>SNAKE ROYALE</h1>
-        <h2>Lobby <span class="game_id_label">#000</span></h2>
-
-        <ul class="player_list">
-            <li>Player1</li>
-            <li>Player2</li>
-            <li>Player3</li>
-            <li>Player4</li>
-            <li>Player5</li>
-            <li>Player6</li>
-            <li>Player7</li>
-            <li>Player8</li>
-            <li>Player9</li>
-        </ul>
-
-        <button class="start_game" onclick="startGame()">start game</button>
-    </div>
+    <%- include('lobby'); %>
 </div>
 
 <div class="game" style="display: none">
-    <div class="container">
-        <h1>Snake Royale</h1>
-
-        <div class="game">
-
-            <div class="info-bar">
-                <span class="own_lives"> <img class="heart_img" src="../images/heart.png"> </span> <span class="own_name">name </span>
-            </div>
-
-            <div class="game-views">
-                <div class="left">
-                    <div class="player">
-                        <div class="info-bar"> <span class="lives"> <img class="heart_img" src="../images/heart.png"> </span> <span class="name">name </span> </div>
-                        <canvas class="enemy"></canvas>
-                    </div>
-
-                    <div class="player">
-                        <div class="info-bar"> <span class="lives"> <img class="heart_img" src="../images/heart.png"> </span> <span class="name">name </span> </div>
-                        <canvas class="enemy"></canvas>
-                    </div>
-
-                    <div class="player">
-                        <div class="info-bar"> <span class="lives"> <img class="heart_img" src="../images/heart.png"> </span> <span class="name">name </span> </div>
-                        <canvas class="enemy"></canvas>
-                    </div>
-
-                    <div class="player">
-                        <div class="info-bar"> <span class="lives"> <img class="heart_img" src="../images/heart.png"> </span> <span class="name">name </span> </div>
-                        <canvas class="enemy"></canvas>
-                    </div>
-                </div>
-
-                <div class="mid">
-                    <canvas class="own_game"></canvas>
-                </div>
-
-                <div class="right">
-                    <div class="player">
-                        <div class="info-bar"> <span class="lives"> <img class="heart_img" src="../images/heart.png"> </span> <span class="name">name </span> </div>
-                        <canvas class="enemy"></canvas>
-                    </div>
-
-                    <div class="player">
-                        <div class="info-bar"> <span class="lives"> <img class="heart_img" src="../images/heart.png"> </span> <span class="name">name </span> </div>
-                        <canvas class="enemy"></canvas>
-                    </div>
-
-                    <div class="player">
-                        <div class="info-bar"> <span class="lives"> <img class="heart_img" src="../images/heart.png"> </span> <span class="name">name </span> </div>
-                        <canvas class="enemy"></canvas>
-                    </div>
-
-                    <div class="player">
-                        <div class="info-bar"> <span class="lives"> <img class="heart_img" src="../images/heart.png"> </span> <span class="name">name </span> </div>
-                        <canvas class="enemy"></canvas>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+    <%- include('game'); %>
 </div>
 
 </body>
