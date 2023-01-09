@@ -1,7 +1,9 @@
+import com.google.gson.internal.LinkedTreeMap;
 import org.java_websocket.WebSocket;
 import org.java_websocket.handshake.ClientHandshake;
 
 import javax.annotation.Nullable;
+import javax.print.DocFlavor;
 import java.net.InetSocketAddress;
 import java.util.*;
 import java.util.concurrent.*;
@@ -51,6 +53,10 @@ public class GameServer {
                     return handleConfigureLobby(message);
                 case CREATE_LOBBY:
                     return handleCreateLobby(message);
+                case SET_NAME:
+                    return handleSetName(message);
+                case START_GAME:
+                    return handleStartGameResponse(message);
                 case UP: //intentional fall throughs
                 case DOWN:
                 case LEFT:
@@ -77,10 +83,13 @@ public class GameServer {
                             System.out.println("player: " + players.get(conn).id + " arrived");
 
                             // todo only for lobby output testing
+                        /*
                             Lobby l = new Lobby("A");
                             System.out.println("Player joined" + l.join(p));
                             l.startGame();
                             lobbies.put("A", l);
+
+                         */
                         break;
                     }
                     case CLOSED: {
@@ -104,11 +113,13 @@ public class GameServer {
             for (Map.Entry<String, Lobby> lobbyEntry : lobbies.entrySet()) {
                 Lobby lobby = lobbyEntry.getValue();
                 long currentTime = System.currentTimeMillis();
-                synchronized (lobby.game.lastUpdatedAtRWMutex) {
-                    if (lobby.game.state.equals(Game.State.RUNNING) && (currentTime - lobby.game.lastUpdatedAt) >= lobby.game.fastestSnakeSpeed) {
-                        lobby.game.lastUpdatedAt = currentTime;
-                        System.out.println("UPDATING LOBBY");
-                        executorService.execute(lobby.game.update);
+                if (lobby.game != null) {
+                    synchronized (lobby.game.lastUpdatedAtRWMutex) {
+                        if (lobby.game.state.equals(Game.State.RUNNING) && (currentTime - lobby.game.lastUpdatedAt) >= lobby.game.fastestSnakeSpeed) {
+                            lobby.game.lastUpdatedAt = currentTime;
+                            System.out.println("UPDATING LOBBY");
+                            executorService.execute(lobby.game.update);
+                        }
                     }
                 }
             }
@@ -131,9 +142,10 @@ public class GameServer {
      */
     public Optional<WSMessage> handleJoinLobby(WSMessage message){
         Player player = players.get(message.getSender());
-        String[] msg = message.getContent(String[].class);
-        if (! lobbies.get(msg[1]).join(player)){
-            return Optional.of(new WSMessage(OpCode.JOIN_FAILED));
+        System.out.println(message.getContent(String.class));
+        String lobbyId = message.getContent(String.class);
+        if (! lobbies.get(lobbyId).join(player)){
+            return Optional.of(new WSMessage(OpCode.JOIN_LOBBY_RESPONSE, lobbies.get(lobbyId)));
         }
         return Optional.empty();
     }
@@ -144,10 +156,13 @@ public class GameServer {
     public Optional<WSMessage> handleLeaveLobby(WSMessage message){
         Player player = players.get(message.getSender());
         boolean leftLobbySuccess = lobbies.get(player.subscribedToLobbyId).leave(player);
-        player.subscribedToLobbyId = null;
+
+         /*
         if (! leftLobbySuccess){
             return Optional.of(new WSMessage(OpCode.JOIN_FAILED));
         }
+
+         */
         return Optional.empty();
     }
 
@@ -177,12 +192,41 @@ public class GameServer {
     }
 
     public Optional<WSMessage> handleCreateLobby(WSMessage message){
+
+        // workaround because GSON does not serialize the correct type for some reason
+        LinkedTreeMap ltm = message.getContent(LinkedTreeMap.class);
+        Lobby lobby = new Lobby((String) ltm.get("ID"));
+        lobby.lobbySize = Integer.parseInt((String) ltm.get("lobbySize"));
+        lobbies.put(lobby.ID, lobby);
+        lobby.join(players.get(message.getSender()));
+
+        /* this is how it's supposed to work
         Lobby lobby = message.getContent(Lobby.class);
         lobby.join(players.get(message.getSender()));
         lobbies.put(lobby.ID, lobby); //update the lobby
+         */
 
         WSMessage response = new WSMessage(OpCode.CREATE_LOBBY_RESPONSE, lobby);
+
+
         return Optional.of(response);
+    }
+
+    public Optional<WSMessage> handleSetName(WSMessage message){
+        players.get(message.getSender()).name = message.getContent(String.class);
+        return Optional.empty();
+    }
+
+    public Optional<WSMessage> handleStartGameResponse(WSMessage message){
+        Lobby lobby = lobbies.get(players.get(message.getSender()).subscribedToLobbyId);
+        for (Player p: lobby.members.values()){
+            if (p.connection.isOpen()) {
+                System.out.println("starting game for player + " + p.id);
+                p.connection.send(new WSMessage(OpCode.START_GAME_RESPONSE).jsonify());
+            }
+        }
+        lobby.startGame();
+        return Optional.empty();
     }
 
 }

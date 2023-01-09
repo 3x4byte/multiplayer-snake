@@ -8,9 +8,9 @@ public class Lobby {
     @Expose
     public final String ID;
     @Expose
-    private int lobbySize = 9;
+    public int lobbySize = 9;
     @Expose(deserialize = false)
-    private HashMap<Integer, Player> members = new HashMap<>(); //requires manual sync
+    public HashMap<Integer, Player> members = new HashMap<>(); //requires manual sync
 
     @Expose(serialize = false, deserialize = false)
     transient final Object membersRWLock = new Object();
@@ -30,6 +30,7 @@ public class Lobby {
         synchronized (membersRWLock){
             if (lobbySize - members.size() > 0){
                 members.put(player.id, player);
+                player.subscribedToLobbyId = ID;
                 return true;
             }
         }
@@ -38,6 +39,7 @@ public class Lobby {
 
     public boolean leave(Player player){
         synchronized (membersRWLock){
+            player.subscribedToLobbyId = null;
             return members.remove(player.id) != null;
         }
     }

@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="static/index.css">
+    <link rel="stylesheet" href="static/lobby.css">
+    <link rel="stylesheet" href="static/game.css">
+    <link rel="stylesheet" href="static/style.css">
+
+    <script src="scripts/index.js"></script>
+    <title>Snake</title>
+
+</head>
+<body>
+
+<div class="index" style="display: contents">
+    <div class="container">
+        <h1>SNAKE ROYALE</h1>
+        <input class="username" type="search" placeholder="username" onchange="updateUsername()" required>
+        <br>
+        <button class="create_game" onclick="configureGame()">create new game</button>
+        <br>
+        <input class="game_id" type="search" placeholder="#000" onchange="updateGameId()">
+        <br>
+        <button class="join" onclick="joinGame()">join game</button>
+
+    </div>
+</div>
+
+<div class="configure_game" style="display: none">
+    <%- include('configure_game'); %>
+</div>
+
+<div class="lobby" style="display: none">
+    <%- include('lobby'); %>
+</div>
+
+<div class="game" style="display: none">
+    <%- include('game'); %>
+</div>
+
+</body>
+</html>
