@@ -27,24 +27,7 @@
 </div>
 
 <div class="configure_game" style="display: none">
-    <div class="container">
-        <h1>SNAKE ROYALE</h1>
-        <h2>configure game</h2>
-
-        <label>max players: </label>
-        <input class="player_number" onchange="updatePlayerNumber()" type="number" name="max_players" value="6" min="4" max="9">
-        <br>
-
-        <h3>room for more Settings...</h3>
-        o <br>
-        o <br>
-        o <br>
-        o <br>
-
-        <br>
-        <button class="create_lobby" onclick="createLobby()">create lobby</button>
-
-    </div>
+    <%- include('../html/configure_game'); %>
 </div>
 
 <div class="lobby" style="display: none">
