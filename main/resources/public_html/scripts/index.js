@@ -9,6 +9,10 @@ function onLoadIndex(){
     updateGameId();
 }
 
+function handleConnectionResponse(data){
+    my_id = data.id;
+}
+
 function updateUsername(){
     username = username_input.value;
     /* updates every time the input changes
@@ -24,9 +28,6 @@ function updateGameId(){
 
 function configureGame(){
     if(username.length > 0){
-        localStorage.setItem("username", username);
-
-        // "redirect - "
         if (socket.readyState === WebSocket.OPEN) {
             socket.send(new Message(OpCode.SET_NAME, username).toJson())
         }
@@ -51,7 +52,6 @@ function joinGame(){
     }
     else{
 
-        // "redirect"
         socket.send(new Message(OpCode.SET_NAME, username).toJson());
         socket.send(new Message(OpCode.JOIN_LOBBY, game_id).toJson()); // is now round trip
     }
@@ -60,8 +60,11 @@ function joinGame(){
 function handleJoinGameResponse(msgContent){
     if (msgContent != null){
         sLobby = msgContent
+        game_id_label_field.innerText = sLobby.ID;
+        // "redirect"
         index.style.display = "none";
         lobby.style.display = "contents";
+
     }
 }
 

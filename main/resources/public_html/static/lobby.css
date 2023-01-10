@@ -1,4 +1,10 @@
 .player_list{
-    padding: 0;
+    padding: 10pt;
     list-style: none;
+    margin: 0 auto;
+    margin-bottom: 25pt;
+
+    border: solid 2pt #EEEEEE;
+    border-radius: 10pt;
+    background: #393E46;
 }

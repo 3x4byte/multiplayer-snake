@@ -1,5 +1,6 @@
 var player_number_field;
 var player_number;
+
 function onLoadConfigureGame(){
     player_number_field = document.querySelector(".player_number");
     player_number = player_number_field.value;

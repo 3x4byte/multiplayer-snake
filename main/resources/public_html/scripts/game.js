@@ -1,8 +1,8 @@
-var last_key_input = "UP";
-var pid = 0; // TODO get own id from server
-let own_canvas_found;
+var last_key_input = "UP"; // TODO when died, reset
+var my_id;
+var enemy_id;
 var name_field;
-var name_enemies_field;
+var name_field_enemies;
 var lives_field;
 var lives_enemies_field;
 var canvas;
@@ -10,8 +10,6 @@ var canvas_enemies;
 var width;
 var width_enemies;
 var num_rows = 10;
-var tile_size;
-var tile_size_enemy;
 var apples_coordinates;
 var is_collided;
 
@@ -19,7 +17,7 @@ function onLoadGame(){
     socket.onmessage = handleMessage;
 
     name_field = document.querySelector(".own_name")
-    name_enemies_field = document.querySelectorAll(".name")
+    name_field_enemies = document.querySelectorAll(".name")
     lives_field = document.querySelector(".own_lives")
     lives_enemies_field = document.querySelectorAll(".lives")
     canvas = document.querySelector(".own_game");
@@ -44,9 +42,25 @@ function windowResized(){
         c.setAttribute("width", width_enemies);
     }
 
-    drawGrid();
+    //drawGrid();
 }
 
+function drawGrid(ctx, ctx_width){
+    let tile_size = (ctx_width-1)/num_rows;
+    ctx.beginPath();
+    ctx.strokeStyle = "#00ADB5";
+    // drawing the grid
+    for (let i = 0; i < ctx_width; i+=tile_size) {
+        ctx.moveTo(0, i);
+        ctx.lineTo(ctx_width, i);
+        ctx.moveTo(i, 0);
+        ctx.lineTo(i, ctx_width);
+    }
+    ctx.stroke();
+    ctx.closePath();
+}
+
+/*
 function drawGrid(){
     tile_size = (width-1)/num_rows;
     // draw own game field
@@ -80,41 +94,42 @@ function drawGrid(){
         ctx.closePath();
     }
 }
+*/
 
 function updatePlayers(data){
-
-    own_canvas_found = 0;
     // loops all players
     for(let player of data){
+        //TODO check if player == null (player died)
         let id = player.id;
         let snake = player.snake;
 
         let ctx;
-        if(id === pid){
-            own_canvas_found = 1;
+        if(id === my_id){
             ctx = canvas.getContext("2d");
-            ctx.clearRect(0, 0, tile_size*num_rows, tile_size*num_rows);
-            drawApples(apples_coordinates, ctx, tile_size);
-            drawOwnSnake(ctx, snake.snakeFields, tile_size);
+            ctx.clearRect(0, 0, width, width);
+            drawApples(apples_coordinates, ctx, width);
+            drawOwnSnake(ctx, snake.snakeFields);
+            drawGrid(ctx, width);
         }
         else{
-            ctx = canvas_enemies[id-own_canvas_found].getContext("2d");
-            ctx.clearRect(0, 0, tile_size_enemy*num_rows, tile_size_enemy*num_rows);
-            drawApples(apples_coordinates, ctx, tile_size_enemy);
-            drawSnake(ctx, snake.snakeFields, tile_size_enemy);
+            ctx = canvas_enemies[enemy_id.indexOf(id)].getContext("2d");
+            ctx.clearRect(0, 0, width_enemies, width_enemies);
+            drawApples(apples_coordinates, ctx, width_enemies);
+            drawSnake(ctx, snake.snakeFields);
+            drawGrid(ctx, width_enemies);
         }
         updateLives(snake.lives, id);
         updateCollision(snake.collided, id);
 
     }
-    drawGrid();
+    //drawGrid();
 }
 
 function updateLives(lives, id){
-    if(id === pid){
+    if(id === my_id){
         lives_field.innerHTML = `<img class="heart_img" src="../images/heart.png">`.repeat(lives);
     }else{
-        lives_enemies_field[id - own_canvas_found].innerHTML = `<img class="heart_img" src="../images/heart.png">`.repeat(lives);
+        lives_enemies_field[enemy_id.indexOf(id)].innerHTML = `<img class="heart_img" src="../images/heart.png">`.repeat(lives);
     }
 }
 
@@ -131,7 +146,6 @@ function updateItems(data){
         let y = item[0].y;
 
         switch (type){
-            // case ItemCode.Apple: drawApple(x, y); break;
             case ItemCode.Apple: apples_coordinates.push([x,y]); break;
 
         }
@@ -139,47 +153,49 @@ function updateItems(data){
     }
 }
 
-function drawApples(apples, ctx, size){
+function drawApples(apples, ctx, ctx_width){
+    let tile_size = (ctx_width-1)/num_rows;
     ctx.beginPath();
     ctx.fillStyle = "red";
     for(let apple of apples){
-        ctx.ellipse(apple[0]*size+(size/2), apple[1]*size+(size/2), size/3, size/3, 0, 0, 360);
+        ctx.ellipse(apple[0]*tile_size+(tile_size/2), apple[1]*tile_size+(tile_size/2), tile_size/3, tile_size/3, 0, 0, 360);
     }
     ctx.fill();
     ctx.closePath();
 
 }
 
-function drawOwnSnake(ctx, positions, size){
+function drawOwnSnake(ctx, positions){
+    let tile_size = (width-1)/num_rows;
 
     ctx.beginPath();
     // drawing head
     ctx.fillStyle = "darkgreen";
     let head = positions[0];
-    ctx.fillRect(head.x*size+size/3, head.y*size+size/3, size/3, size/3);
+    ctx.fillRect(head.x*tile_size+tile_size/3, head.y*tile_size+tile_size/3, tile_size/3, tile_size/3);
 
     for(let i = 1; i < positions.length; i++){
         ctx.fillStyle = "green";
 
         // drawing center rect
-        ctx.fillRect(positions[i].x*size+size/3, positions[i].y*size+size/3, size/3, size/3);
+        ctx.fillRect(positions[i].x*tile_size+tile_size/3, positions[i].y*tile_size+tile_size/3, tile_size/3, tile_size/3);
 
         //drawing connecting rect
         if(positions[i].x < positions[i-1].x){
-            ctx.fillRect(positions[i].x*size+size/3*2, positions[i].y*size+size/3, size/3, size/3);
-            ctx.fillRect(positions[i-1].x*size, positions[i-1].y*size+size/3, size/3, size/3);
+            ctx.fillRect(positions[i].x*tile_size+tile_size/3*2, positions[i].y*tile_size+tile_size/3, tile_size/3, tile_size/3);
+            ctx.fillRect(positions[i-1].x*tile_size, positions[i-1].y*tile_size+tile_size/3, tile_size/3, tile_size/3);
 
         }else if(positions[i].x > positions[i-1].x){
-            ctx.fillRect(positions[i].x*size, positions[i].y*size+size/3, size/3, size/3);
-            ctx.fillRect(positions[i-1].x*size+size/3*2, positions[i-1].y*size+size/3, size/3, size/3);
+            ctx.fillRect(positions[i].x*tile_size, positions[i].y*tile_size+tile_size/3, tile_size/3, tile_size/3);
+            ctx.fillRect(positions[i-1].x*tile_size+tile_size/3*2, positions[i-1].y*tile_size+tile_size/3, tile_size/3, tile_size/3);
 
         }else if(positions[i].y < positions[i-1].y){
-            ctx.fillRect(positions[i].x*size+size/3, positions[i].y*size+size/3*2, size/3, size/3);
-            ctx.fillRect(positions[i-1].x*size+size/3, positions[i-1].y*size, size/3, size/3);
+            ctx.fillRect(positions[i].x*tile_size+tile_size/3, positions[i].y*tile_size+tile_size/3*2, tile_size/3, tile_size/3);
+            ctx.fillRect(positions[i-1].x*tile_size+tile_size/3, positions[i-1].y*tile_size, tile_size/3, tile_size/3);
 
         }else if(positions[i].y > positions[i-1].y) {
-            ctx.fillRect(positions[i].x*size+size/3, positions[i].y*size, size/3, size/3);
-            ctx.fillRect(positions[i-1].x*size+size/3, positions[i-1].y*size+size/3*2, size/3, size/3);
+            ctx.fillRect(positions[i].x*tile_size+tile_size/3, positions[i].y*tile_size, tile_size/3, tile_size/3);
+            ctx.fillRect(positions[i-1].x*tile_size+tile_size/3, positions[i-1].y*tile_size+tile_size/3*2, tile_size/3, tile_size/3);
 
         }
     }
@@ -189,7 +205,9 @@ function drawOwnSnake(ctx, positions, size){
 }
 
 
-function drawSnake(ctx, positions, size){
+function drawSnake(ctx, positions){
+    let tile_size = (width_enemies-1)/num_rows;
+
     let head = true;
     ctx.beginPath();
     // loops over the tail coordinates
@@ -199,7 +217,7 @@ function drawSnake(ctx, positions, size){
             ctx.fillStyle = "darkgreen";
             head = false;
         }
-        ctx.fillRect(position.x * size, position.y * size, size, size);
+        ctx.fillRect(position.x * tile_size, position.y * tile_size, tile_size, tile_size);
     }
 
     ctx.fill();
@@ -254,10 +272,11 @@ function handleMessage(websocketMessage){
         case OpCode.PLAYER_POSITIONS: updatePlayers(message.content); break;
         case OpCode.ITEM_POSITIONS: updateItems(message.content); break;
         case OpCode.CONFIGURE_LOBBY_RESPONSE: handleConfigureGameResponse(message.content); break;
-        case OpCode.CREATE_LOBBY_RESPONSE: handleCreateLobbyResponse(message.content); break
-        case OpCode.JOIN_LOBBY_RESPONSE: handleJoinGameResponse(message.content); break
-        case OpCode.START_GAME_RESPONSE: handleStartGameResponse(); break
-        case OpCode.LOBBY_UPDATE: handleLobbyUpdate(message.content); break
+        case OpCode.CREATE_LOBBY_RESPONSE: handleCreateLobbyResponse(message.content); break;
+        case OpCode.JOIN_LOBBY_RESPONSE: handleJoinGameResponse(message.content); break;
+        case OpCode.START_GAME_RESPONSE: handleStartGameResponse(); break;
+        case OpCode.LOBBY_UPDATE: handleLobbyUpdate(message.content); break;
+        case OpCode.CONNECTION_RESPONSE: handleConnectionResponse(message.content); break;
     }
 }
 
