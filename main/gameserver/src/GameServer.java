@@ -88,6 +88,7 @@ public class GameServer {
                     }
                     case CLOSED: {
                             System.out.println("player: " + players.get(conn).id + " left");
+                            handleLeaveLobby(new WSMessage(conn, OpCode.LEAVE_LOBBY, null));
                             players.remove(conn);
                         break;
                     }
@@ -139,7 +140,6 @@ public class GameServer {
         System.out.println("LobbyId" + message.getContent(String.class));
         String lobbyId = message.getContent(String.class);
         Lobby lobby = lobbies.get(lobbyId);
-        System.out.println("adding player ");
         if (lobby.join(player)){
             sendLobbyUpdate(lobby);
             return Optional.of(new WSMessage(OpCode.JOIN_LOBBY_RESPONSE, lobby));
@@ -153,10 +153,10 @@ public class GameServer {
     public Optional<WSMessage> handleLeaveLobby(WSMessage message){
         Player player = players.get(message.getSender());
         Lobby lobby =  lobbies.get(player.subscribedToLobbyId);
-        boolean leftLobbySuccess =lobby.leave(player);
+        boolean leftLobbySuccess = lobby.leave(player);
 
         // if the player left the lobby and the game is not running - notify users to update their lobby screen
-        if (leftLobbySuccess && lobby.game != null && !lobby.game.state.equals(Game.State.RUNNING)){
+        if (leftLobbySuccess && lobby.game == null){
             WSMessage updateMessage = new WSMessage(OpCode.LOBBY_UPDATE, lobby.members.values());
             for (Player p: lobby.members.values()){
                 if (p.connection.isOpen()){
