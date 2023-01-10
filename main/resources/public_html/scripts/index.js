@@ -61,10 +61,15 @@ function handleJoinGameResponse(msgContent){
     if (msgContent != null){
         sLobby = msgContent
         game_id_label_field.innerText = sLobby.ID;
+
+        let startBtn = document.querySelector(".start_game");
+        startBtn.remove()
+
         // "redirect"
         index.style.display = "none";
         lobby.style.display = "contents";
 
+        lobby.getElementById()
     }
 }
 

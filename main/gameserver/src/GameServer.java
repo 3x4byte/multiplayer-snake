@@ -204,8 +204,9 @@ public class GameServer {
         Lobby lobby = new Lobby((String) ltm.get("ID"));
         lobby.lobbySize = Integer.parseInt((String) ltm.get("lobbySize"));
         lobbies.put(lobby.ID, lobby);
+        lobby.owner = players.get(message.getSender());
+
         handleJoinLobby(new WSMessage(message.getSender(), OpCode.ZERO, lobby.ID));
-       // lobby.join(players.get(message.getSender()));
 
         /* todo this is how it's supposed to work
         Lobby lobby = message.getContent(Lobby.class);
@@ -214,8 +215,6 @@ public class GameServer {
          */
 
         WSMessage response = new WSMessage(OpCode.CREATE_LOBBY_RESPONSE, lobby);
-
-
         return Optional.of(response);
     }
 
@@ -225,14 +224,18 @@ public class GameServer {
     }
 
     public Optional<WSMessage> handleStartGame(WSMessage message){
-        Lobby lobby = lobbies.get(players.get(message.getSender()).subscribedToLobbyId);
-        for (Player p: lobby.members.values()){
-            if (p.connection.isOpen()) {
-                System.out.println("starting game for player + " + p.id);
-                p.connection.send(new WSMessage(OpCode.START_GAME_RESPONSE).jsonify());
+        Player caller = players.get(message.getSender());
+        Lobby lobby = lobbies.get(caller.subscribedToLobbyId);
+
+        if (lobby.owner.id == caller.id) {
+            for (Player p : lobby.members.values()) {
+                if (p.connection.isOpen()) {
+                    System.out.println("starting game for player + " + p.id);
+                    p.connection.send(new WSMessage(OpCode.START_GAME_RESPONSE).jsonify());
+                }
             }
+            lobby.startGame();
         }
-        lobby.startGame();
         return Optional.empty();
     }
 

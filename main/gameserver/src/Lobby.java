@@ -1,6 +1,8 @@
 import com.google.gson.annotations.Expose;
 
 import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 
 public class Lobby {
@@ -9,8 +11,11 @@ public class Lobby {
     public final String ID;
     @Expose
     public int lobbySize = 9;
+    @Expose (deserialize = false)
+    public Player owner; //  can be used by client but does not have to
+
     @Expose(deserialize = false)
-    public HashMap<Integer, Player> members = new HashMap<>(); //requires manual sync
+    public Map<Integer, Player> members = new ConcurrentHashMap<>(); //requires manual sync
 
     @Expose(serialize = false, deserialize = false)
     transient final Object membersRWLock = new Object();
@@ -22,7 +27,6 @@ public class Lobby {
     }
 
     public void startGame(){
-        System.out.println("MAKING GAME FROM: " + members + " with length " + members.size());
         this.game = new Game(members);
     }
 
