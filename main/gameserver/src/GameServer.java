@@ -1,9 +1,9 @@
+import com.google.gson.annotations.Expose;
 import com.google.gson.internal.LinkedTreeMap;
 import org.java_websocket.WebSocket;
 import org.java_websocket.handshake.ClientHandshake;
 
 import javax.annotation.Nullable;
-import javax.print.DocFlavor;
 import java.net.InetSocketAddress;
 import java.util.*;
 import java.util.concurrent.*;
@@ -56,7 +56,7 @@ public class GameServer {
                 case SET_NAME:
                     return handleSetName(message);
                 case START_GAME:
-                    return handleStartGameResponse(message);
+                    return handleStartGame(message);
                 //intentional fall throughs
                 case UP:
                 case DOWN:
@@ -134,30 +134,38 @@ public class GameServer {
     /**
      * @return Optional Message indicating that the lobby is full
      */
-    public Optional<WSMessage> handleJoinLobby(WSMessage message){
+    public Optional<WSMessage> handleJoinLobby(WSMessage message){ //todo check if player is already subscribed to lobby!
         Player player = players.get(message.getSender());
-        System.out.println(message.getContent(String.class));
+        System.out.println("LobbyId" + message.getContent(String.class));
         String lobbyId = message.getContent(String.class);
-        if (! lobbies.get(lobbyId).join(player)){
-            return Optional.of(new WSMessage(OpCode.JOIN_LOBBY_RESPONSE, lobbies.get(lobbyId)));
+        Lobby lobby = lobbies.get(lobbyId);
+        System.out.println("adding player ");
+        if (lobby.join(player)){
+            sendLobbyUpdate(lobby);
+            return Optional.of(new WSMessage(OpCode.JOIN_LOBBY_RESPONSE, lobby));
         }
         return Optional.empty();
     }
 
     /**
-     * @return an error if the lobby could not be left, else nothing
+     * @return Message indicating whether leaving was successful or not
      */
     public Optional<WSMessage> handleLeaveLobby(WSMessage message){
         Player player = players.get(message.getSender());
-        boolean leftLobbySuccess = lobbies.get(player.subscribedToLobbyId).leave(player);
+        Lobby lobby =  lobbies.get(player.subscribedToLobbyId);
+        boolean leftLobbySuccess =lobby.leave(player);
 
-         /*
-        if (! leftLobbySuccess){
-            return Optional.of(new WSMessage(OpCode.JOIN_FAILED));
+        // if the player left the lobby and the game is not running - notify users to update their lobby screen
+        if (leftLobbySuccess && lobby.game != null && !lobby.game.state.equals(Game.State.RUNNING)){
+            WSMessage updateMessage = new WSMessage(OpCode.LOBBY_UPDATE, lobby.members.values());
+            for (Player p: lobby.members.values()){
+                if (p.connection.isOpen()){
+                    p.connection.send(updateMessage.jsonify());
+                }
+            }
         }
 
-         */
-        return Optional.empty();
+        return Optional.of(new WSMessage(OpCode.LEAVE_LOBBY_RESPONSE, leftLobbySuccess));
     }
 
 
@@ -170,6 +178,10 @@ public class GameServer {
         return Optional.empty();
     }
 
+    /**
+     * Takes the lobby creation mutex and generates a random ID, once the Lobby
+     * was generated using the ID, the lobby is sent to the player requesting the creation.
+     */
     public Optional<WSMessage> handleConfigureLobby(WSMessage message){
         String lobbyCode;
         Lobby lobby;
@@ -192,9 +204,10 @@ public class GameServer {
         Lobby lobby = new Lobby((String) ltm.get("ID"));
         lobby.lobbySize = Integer.parseInt((String) ltm.get("lobbySize"));
         lobbies.put(lobby.ID, lobby);
-        lobby.join(players.get(message.getSender()));
+        handleJoinLobby(new WSMessage(message.getSender(), OpCode.ZERO, lobby.ID));
+       // lobby.join(players.get(message.getSender()));
 
-        /* this is how it's supposed to work
+        /* todo this is how it's supposed to work
         Lobby lobby = message.getContent(Lobby.class);
         lobby.join(players.get(message.getSender()));
         lobbies.put(lobby.ID, lobby); //update the lobby
@@ -211,7 +224,7 @@ public class GameServer {
         return Optional.empty();
     }
 
-    public Optional<WSMessage> handleStartGameResponse(WSMessage message){
+    public Optional<WSMessage> handleStartGame(WSMessage message){
         Lobby lobby = lobbies.get(players.get(message.getSender()).subscribedToLobbyId);
         for (Player p: lobby.members.values()){
             if (p.connection.isOpen()) {
@@ -221,6 +234,20 @@ public class GameServer {
         }
         lobby.startGame();
         return Optional.empty();
+    }
+
+    /**
+     * Sends the current lobby status to all players - used to update lobby screen!
+     */
+    private synchronized void sendLobbyUpdate(Lobby lobby){
+        System.out.println("in send lobby");
+        WSMessage message = new WSMessage(OpCode.LOBBY_UPDATE, lobby.members.values());
+        for (Player p : lobby.members.values()){
+            if (p.connection.isOpen()){
+                System.out.println("sending ");
+                p.connection.send(message.jsonify()); //todo entscheiden ob man alle daten an alle sendet oder immer nur neue (würde auch gehen)
+            }
+        }
     }
 
 }

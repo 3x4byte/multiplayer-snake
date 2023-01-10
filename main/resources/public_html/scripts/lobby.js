@@ -8,6 +8,20 @@ function startGame(){
     // is now round trip
 }
 
+function handleLobbyUpdate(messageContent){
+    var list = document.getElementById("player_list");
+    list.textContent = "";
+
+    var i = 1;
+    for (var player of messageContent) {
+        var joinedPlayer = document.createElement("li");
+        joinedPlayer.setAttribute('id', player.id);
+        var textnode = document.createTextNode(i++ + " " + player.name);
+        joinedPlayer.appendChild(textnode);
+        list.appendChild(joinedPlayer);
+    }
+}
+
 function handleStartGameResponse(){
     lobby.style.display = "none";
     game.style.display = "contents";

@@ -16,7 +16,7 @@ public class Player {
     public String name;
 
     @Expose(serialize = false, deserialize = false)
-    public String subscribedToLobbyId;
+    public transient String subscribedToLobbyId;
     @Expose
     public Snake snake; // is reset at every game start
 

@@ -248,7 +248,7 @@ function keyInput(evt){
 function handleMessage(websocketMessage){
     //console.log("Incoming message: " + websocketMessage.data); //only delete after debugging please
     let message = Message.fromJson(websocketMessage.data);
-    //console.log("Parsed message: " + message); //only delete after debugging please
+    //console.log("Parsed message: ", message); //only delete after debugging please
 
     switch (message.opCode){
         case OpCode.PLAYER_POSITIONS: updatePlayers(message.content); break;
@@ -257,6 +257,7 @@ function handleMessage(websocketMessage){
         case OpCode.CREATE_LOBBY_RESPONSE: handleCreateLobbyResponse(message.content); break
         case OpCode.JOIN_LOBBY_RESPONSE: handleJoinGameResponse(message.content); break
         case OpCode.START_GAME_RESPONSE: handleStartGameResponse(); break
+        case OpCode.LOBBY_UPDATE: handleLobbyUpdate(message.content); break
     }
 }
 

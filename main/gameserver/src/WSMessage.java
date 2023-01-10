@@ -33,6 +33,12 @@ public class WSMessage implements WSServer.Message{
         this.content = contents;
     }
 
+    WSMessage(WebSocket conn, OpCode opCode,  Object contents){
+        this.connection = conn;
+        this.opCode = opCode;
+        this.content = contents;
+    }
+
     /**
      * Some Messages may just consist of an opcode
      * This one is for building responses for the {@link GameServer.WSMessageHandler} that only need minimal information
