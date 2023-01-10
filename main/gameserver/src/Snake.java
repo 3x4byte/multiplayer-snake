@@ -96,6 +96,10 @@ public class Snake {
      * this includes: collisions, collection of items and the growth of the snake.
      */
     private void moveHelper(Coordinate targetField){
+        // enables us to circle in with length 4 - this would not be possible if we first increased the size
+        Coordinate removed = snakeFields.removeLast();
+        occupiedFields.remove(removed);
+
         // move snake one field
         snakeFields.addFirst(targetField);
         collided = occupiedFields.contains(targetField) || targetField.x >= Game.WORLD_WIDTH || targetField.x < 0 ||
@@ -107,6 +111,17 @@ public class Snake {
             // check for items at that field
             Item i = itemPositions.get(targetField);
 
+            if (i != null) {
+                collectedItems.add(targetField);
+                switch (i) {
+                    case Apple:
+                        snakeFields.addLast(removed);
+                        occupiedFields.add(removed);
+                        break;
+                }
+            }
+
+            /* if we ever want to go back to the model where the snake can not circle with 4
             if (i == null){
                 // there was no apple, last body part deleted
                 occupiedFields.remove(snakeFields.removeLast());
@@ -116,10 +131,9 @@ public class Snake {
                 if (!(i.equals(Item.Apple))) {
                     // delete the last snake body part if we did not eat an apple
                     occupiedFields.remove(snakeFields.removeLast());
-                    //todo here we check for all the other items if we add any
                 }
             }
-
+            */
         }
     }
 
