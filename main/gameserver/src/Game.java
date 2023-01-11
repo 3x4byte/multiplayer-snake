@@ -7,7 +7,7 @@ import java.util.*;
  */
 public class Game {
     public static final float CYCLE_DURATION_MS = 1000f;
-    public static final float TICKS_PER_CYCLE = 5f;
+    public static final float TICKS_PER_CYCLE = 3f;
     public static final float TICK_DURATION = CYCLE_DURATION_MS / TICKS_PER_CYCLE;
     public static final float SNAKE_SPEED = TICK_DURATION; // the snake speed equals the TICK_DURATION, which as of right now is 1/s
 
@@ -73,6 +73,7 @@ public class Game {
     private void progress(){
         Player[] players = new Player[participants.size()];
         int i = 0;
+        int deadPlayers = 0;
         for (Map.Entry<Integer, Player> entrySet : participants.entrySet()){
             Player player = entrySet.getValue();
             System.out.println("UPDATING PLAYER " + player.id);
@@ -86,7 +87,13 @@ public class Game {
                 }
 
                 players[i++] = player;
+            } else {
+                deadPlayers += 1;
             }
+        }
+
+        if(deadPlayers == participants.size()) {
+            this.state = State.STOPPED;
         }
 
         removeCollectedItems();
@@ -106,6 +113,19 @@ public class Game {
                 player.connection.send(applePositionsAsJson);
                 player.connection.send(playerPositionsAsJson); // applePositions have to be sent first (UI)
             }
+        }
+    }
+
+    public void gameloop(){
+        while (state.equals(State.RUNNING)){
+            try {
+                Thread.sleep((long) TICK_DURATION);
+                System.out.println("updaing lobby");
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+            progress();
+            gameloop();
         }
     }
 

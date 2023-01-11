@@ -22,7 +22,7 @@ public class GameServer {
     private final ConcurrentMap<WebSocket, Player> players = new ConcurrentHashMap<>(); //requires concurrent - thread safe access
     private final ConcurrentMap<String, Lobby> lobbies = new ConcurrentHashMap<>(); //maps lobby ids to lobbies
 
-    ExecutorService executorService = Executors.newFixedThreadPool(4);
+    //ExecutorService executorService = Executors.newFixedThreadPool(4);
     private GameServer(){
         server = new WSServer<WSMessage>(new InetSocketAddress(PORT), new WSMessageHandler(), WSMessage.class);
         server.setOnConnectionEventListener(new OnConnectionEvent());
@@ -104,6 +104,7 @@ public class GameServer {
      */
     public void run(){
         this.isRunning = true;
+        /*
         while (isRunning){
             for (Map.Entry<String, Lobby> lobbyEntry : lobbies.entrySet()) {
                 Lobby lobby = lobbyEntry.getValue();
@@ -119,6 +120,8 @@ public class GameServer {
                 }
             }
         }
+        */
+
     }
 
     /**
@@ -235,6 +238,7 @@ public class GameServer {
                 }
             }
             lobby.startGame();
+            new Thread(() -> lobby.game.gameloop()).start();
         }
         return Optional.empty();
     }

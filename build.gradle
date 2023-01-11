@@ -3,12 +3,16 @@ plugins{
     id "com.github.node-gradle.node" version "3.5.0" /* Enables automatic NodeJs package resolution via package.json*/
 }
 
+
+
 /* Project Structure */
 def srcDir = 'main'
-    def srcJava = "${srcDir}/gameserver/src"
-    def srcJavascript = "${srcDir}/webserver/"
-        def srcWebserver = "${srcJavascript}/src"
+def srcJava = "${srcDir}/gameserver/src"
+def srcJavascript = "${srcDir}/webserver/"
+def srcWebserver = "${srcJavascript}/src"
 def rscAll = "main/resources"
+
+OperatingSystem os = org.gradle.nativeplatform.platform.internal.DefaultNativePlatform.currentOperatingSystem;
 
 def javaClasspath = sourceSets.main.runtimeClasspath
 def javaServer = "GameServer"
@@ -64,7 +68,12 @@ task runWebserver(type: NodeTask, dependsOn: 'npmInstall') {
 /* Runs entire project */
 task runServer(type:Exec) {
     println "Starting Multiplayer-Snake server..."
-    commandLine = ['cmd', '/C', 'start', 'runServer.bat', '"'+ javaClasspath.asPath +'"', javaServer, javascriptServerPath]
+    if(os.isLinux() || os.isMacOsX()) {
+        commandLine = ['./runServer.sh', javaClasspath.asPath, javaServer, javascriptServerPath]
+    }
+    else if(os.isWindows()){
+        commandLine = ['cmd', '/C', 'start', 'runServer.bat', '"'+ javaClasspath.asPath +'"', javaServer, javascriptServerPath]
+    }
 }
 
 runServer.dependsOn(["build", "npmInstall"])

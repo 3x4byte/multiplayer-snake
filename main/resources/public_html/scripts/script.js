@@ -9,7 +9,7 @@ var sLobby;
 window.onload = windowLoaded;
 
 function windowLoaded(){
-    socket = new WebSocket("ws://localhost:5001");
+    socket = new WebSocket(`ws://${location.hostname}:5001`);
     index = document.querySelector(".index");
     configure_game = document.querySelector(".configure_game");
     lobby = document.querySelector(".lobby");
