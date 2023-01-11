@@ -64,7 +64,8 @@ task runWebserver(type: NodeTask, dependsOn: 'npmInstall') {
 /* Runs entire project */
 task runServer(type:Exec) {
     println "Starting Multiplayer-Snake server..."
-    commandLine = ['./runServer.sh', javaClasspath.asPath, javaServer, javascriptServerPath]
+    commandLine = ['cmd', '/C', 'start', 'runServer.bat', '"'+ javaClasspath.asPath +'"', javaServer, javascriptServerPath]
+    /* commandLine = ['./runServer.sh', javaClasspath.asPath, javaServer, javascriptServerPath] */
 }
 
 runServer.dependsOn(["build", "npmInstall"])

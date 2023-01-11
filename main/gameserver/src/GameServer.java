@@ -104,6 +104,7 @@ public class GameServer {
      */
     public void run(){
         this.isRunning = true;
+        /*
         while (isRunning){
             for (Map.Entry<String, Lobby> lobbyEntry : lobbies.entrySet()) {
                 Lobby lobby = lobbyEntry.getValue();
@@ -119,6 +120,8 @@ public class GameServer {
                 }
             }
         }
+        */
+
     }
 
     /**
@@ -235,6 +238,7 @@ public class GameServer {
                 }
             }
             lobby.startGame();
+            new Thread(() -> lobby.game.gameloop()).start();
         }
         return Optional.empty();
     }

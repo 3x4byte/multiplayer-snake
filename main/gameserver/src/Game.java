@@ -73,6 +73,7 @@ public class Game {
     private void progress(){
         Player[] players = new Player[participants.size()];
         int i = 0;
+        int deadPlayers = 0;
         for (Map.Entry<Integer, Player> entrySet : participants.entrySet()){
             Player player = entrySet.getValue();
             System.out.println("UPDATING PLAYER " + player.id);
@@ -86,7 +87,13 @@ public class Game {
                 }
 
                 players[i++] = player;
+            } else {
+                deadPlayers += 1;
             }
+        }
+
+        if(deadPlayers == participants.size()) {
+            this.state = State.STOPPED;
         }
 
         removeCollectedItems();
@@ -105,6 +112,19 @@ public class Game {
                 System.out.println("apples: " + applePositionsAsJson);
                 player.connection.send(applePositionsAsJson);
                 player.connection.send(playerPositionsAsJson); // applePositions have to be sent first (UI)
+            }
+        }
+    }
+
+    public void gameloop(){
+        while (state.equals(State.RUNNING)){
+            progress();
+            gameloop();
+            try {
+                Thread.sleep((long) TICK_DURATION);
+                System.out.println("updaing lobby");
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
             }
         }
     }
