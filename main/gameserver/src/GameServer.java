@@ -64,7 +64,7 @@ public class GameServer {
                 case RIGHT:
                     return handlePlayerMove(message);
                 default:
-                    System.out.println("COULD NOT IDENTIFY DATA: " + message);
+                    //System.out.println("COULD NOT IDENTIFY DATA: " + message);
                     return Optional.empty();
             }
         }
@@ -82,12 +82,12 @@ public class GameServer {
                             Player p = new Player(conn);
                             players.put(conn, p);
                             conn.send(new WSMessage(OpCode.CONNECTION_RESPONSE, p).jsonify());
-                            System.out.println("player: " + players.get(conn).id + " arrived");
+                            //System.out.println("player: " + players.get(conn).id + " arrived");
 
                         break;
                     }
                     case CLOSED: {
-                            System.out.println("player: " + players.get(conn).id + " left");
+                            //System.out.println("player: " + players.get(conn).id + " left");
                             handleLeaveLobby(new WSMessage(conn, OpCode.LEAVE_LOBBY, null));
                             players.remove(conn);
                         break;
@@ -140,7 +140,7 @@ public class GameServer {
      */
     public Optional<WSMessage> handleJoinLobby(WSMessage message){ //todo check if player is already subscribed to lobby!
         Player player = players.get(message.getSender());
-        System.out.println("LobbyId" + message.getContent(String.class));
+        //System.out.println("LobbyId" + message.getContent(String.class));
         String lobbyId = message.getContent(String.class);
         Lobby lobby = lobbies.get(lobbyId);
         if (lobby.join(player)){
@@ -233,7 +233,7 @@ public class GameServer {
         if (lobby.owner.id == caller.id) {
             for (Player p : lobby.members.values()) {
                 if (p.connection.isOpen()) {
-                    System.out.println("starting game for player + " + p.id);
+                    //System.out.println("starting game for player + " + p.id);
                     p.connection.send(new WSMessage(OpCode.START_GAME_RESPONSE).jsonify());
                 }
             }
@@ -247,11 +247,11 @@ public class GameServer {
      * Sends the current lobby status to all players - used to update lobby screen!
      */
     private synchronized void sendLobbyUpdate(Lobby lobby){
-        System.out.println("in send lobby");
+        //System.out.println("in send lobby");
         WSMessage message = new WSMessage(OpCode.LOBBY_UPDATE, lobby.members.values());
         for (Player p : lobby.members.values()){
             if (p.connection.isOpen()){
-                System.out.println("sending ");
+                //System.out.println("sending ");
                 p.connection.send(message.jsonify()); //todo entscheiden ob man alle daten an alle sendet oder immer nur neue (würde auch gehen)
             }
         }

@@ -1,4 +1,4 @@
-var last_key_input = "UP"; // TODO when died, reset
+var last_key_input = "UP";
 var my_id;
 var enemy_id;
 var name_field;
@@ -99,30 +99,29 @@ function drawGrid(){
 function updatePlayers(data){
     // loops all players
     for(let player of data){
-        //TODO check if player == null (player died)
-        let id = player.id;
-        let snake = player.snake;
+        if(player !== null) {
+            let id = player.id;
+            let snake = player.snake;
 
-        let ctx;
-        if(id === my_id){
-            ctx = canvas.getContext("2d");
-            ctx.clearRect(0, 0, width, width);
-            drawApples(apples_coordinates, ctx, width);
-            drawOwnSnake(ctx, snake.snakeFields);
-            drawGrid(ctx, width);
-        }
-        else{
-            ctx = canvas_enemies[enemy_id.indexOf(id)].getContext("2d");
-            ctx.clearRect(0, 0, width_enemies, width_enemies);
-            drawApples(apples_coordinates, ctx, width_enemies);
-            drawSnake(ctx, snake.snakeFields);
-            drawGrid(ctx, width_enemies);
-        }
-        updateLives(snake.lives, id);
-        updateCollision(snake.collided, id);
+            let ctx;
+            if (id === my_id) {
+                ctx = canvas.getContext("2d");
+                ctx.clearRect(0, 0, width, width);
+                drawApples(apples_coordinates, ctx, width);
+                drawOwnSnake(ctx, snake.snakeFields);
+                drawGrid(ctx, width);
+            } else {
+                ctx = canvas_enemies[enemy_id.indexOf(id)].getContext("2d");
+                ctx.clearRect(0, 0, width_enemies, width_enemies);
+                drawApples(apples_coordinates, ctx, width_enemies);
+                drawSnake(ctx, snake.snakeFields);
+                drawGrid(ctx, width_enemies);
+            }
+            updateLives(snake.lives, id);
+            updateCollision(snake.collided, id);
 
+        }
     }
-    //drawGrid();
 }
 
 function updateLives(lives, id){
@@ -135,6 +134,9 @@ function updateLives(lives, id){
 
 function updateCollision(collided, id){
     is_collided = collided;
+    if(is_collided){
+        last_key_input = "UP";
+    }
     // TODO maybe animation?
 }
 
@@ -248,11 +250,9 @@ function keyInput(evt){
         if(game.style.display === "none") {
             return;
         }
-        // TODO
         if(is_collided === true) {
             return;
         }
-
         if (msg.opCode === last_key_input) {
             return;
         }

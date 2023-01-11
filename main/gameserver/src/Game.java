@@ -76,7 +76,7 @@ public class Game {
         int deadPlayers = 0;
         for (Map.Entry<Integer, Player> entrySet : participants.entrySet()){
             Player player = entrySet.getValue();
-            System.out.println("UPDATING PLAYER " + player.id);
+            //System.out.println("UPDATING PLAYER " + player.id);
             if (player.snake.lives > 0) {
 
                 if (player.snake.collided) {
@@ -109,7 +109,7 @@ public class Game {
             Player player = entrySet.getValue();
 
             if (player.connection.isOpen()) {
-                System.out.println("apples: " + applePositionsAsJson);
+                //System.out.println("apples: " + applePositionsAsJson);
                 player.connection.send(applePositionsAsJson);
                 player.connection.send(playerPositionsAsJson); // applePositions have to be sent first (UI)
             }
@@ -120,7 +120,7 @@ public class Game {
         while (state.equals(State.RUNNING)){
             try {
                 Thread.sleep((long) TICK_DURATION);
-                System.out.println("updaing lobby");
+                //System.out.println("updaing lobby");
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
@@ -145,7 +145,7 @@ public class Game {
             newApplePositions.put(fieldCopyArray[random.nextInt(fieldCopyArray.length)], Item.Apple);
         }
 
-        System.out.println("ADDING new apples: " + newApplePositions);
+        //System.out.println("ADDING new apples: " + newApplePositions);
         itemCoordinates.putAll(newApplePositions);
     }
 

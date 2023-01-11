@@ -32,7 +32,7 @@ function handleLobbyUpdate(messageContent){
 }
 
 function adjustPlayerList(){
-    let longest_name = 0;
+    let longest_name = username.length;
     for(let name of enemy_names){
         if(name.length > longest_name){
             longest_name = name.length;

@@ -44,9 +44,9 @@ public class WSServer<T extends WSServer.Message> extends WebSocketServer{
 
     @Override
     public void onMessage(WebSocket conn, String message) {
-        System.out.println("Handling message " + message);
+        //System.out.println("Handling message " + message);
         T m = gsonBuilder.fromJson(message, messageClass);
-        System.out.println("parsed Object: " + m.jsonify());
+        //System.out.println("parsed Object: " + m.jsonify());
         m.setSender(conn);
 
         Optional<T> response = handler.handle(m);
