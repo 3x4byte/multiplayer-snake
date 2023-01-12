@@ -215,9 +215,10 @@ public class Snake {
         int cutoffSize = size - INITIAL_LENGTH;
         if (size == occupiedFields.size()){
             lives -= 1;
-        }
-        for (int c= 0; c < cutoffSize; c++){
-            occupiedFields.remove(snakeFields.removeLast());
+        } else {
+            for (int c = 0; c < cutoffSize; c++) {
+                occupiedFields.remove(snakeFields.removeLast());
+            }
         }
     }
 }
