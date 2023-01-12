@@ -40,6 +40,7 @@ dependencies {
     implementation 'com.google.code.gson:gson:2.10'
     implementation "org.slf4j:slf4j-simple:2.0.6"
     testImplementation 'org.slf4j:slf4j-simple:2.0.6'
+    implementation 'ch.qos.logback:logback-classic:1.2.3'
 }
 
 node{
