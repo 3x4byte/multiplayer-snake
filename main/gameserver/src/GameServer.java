@@ -13,7 +13,6 @@ import java.util.concurrent.*;
  */
 public class GameServer {
     private final int PORT = 5001;
-    private boolean isRunning;
     private final Random random = new Random();
     private final Object lobbyCreationMutex = new Object();
 
@@ -21,7 +20,8 @@ public class GameServer {
     private final ConcurrentMap<WebSocket, Player> players = new ConcurrentHashMap<>(); //requires concurrent - thread safe access
     private final ConcurrentMap<String, Lobby> lobbies = new ConcurrentHashMap<>(); //maps lobby ids to lobbies
 
-    //ExecutorService executorService = Executors.newFixedThreadPool(4);
+    ExecutorService executorService = Executors.newCachedThreadPool();
+
     private GameServer(){
         server = new WSServer<WSMessage>(new InetSocketAddress(PORT), new WSMessageHandler(), WSMessage.class);
         server.setOnConnectionEventListener(new OnConnectionEvent());
@@ -210,7 +210,7 @@ public class GameServer {
                 }
             }
             lobby.initializeGame();
-            new Thread(() -> lobby.game.gameloop()).start();
+            executorService.submit(lobby.game.RunGame);
         }
         return Optional.empty();
     }
