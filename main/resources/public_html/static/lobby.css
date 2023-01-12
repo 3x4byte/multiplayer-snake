@@ -8,3 +8,9 @@
     border-radius: 10pt;
     background: #393E46;
 }
+
+.cross{
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+    margin-right: 5pt;
+}

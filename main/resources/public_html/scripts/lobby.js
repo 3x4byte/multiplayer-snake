@@ -1,7 +1,6 @@
 var game_id_label_field;
 var player_list_element;
 var enemy_names;
-
 function onLoadLobby() {
     game_id_label_field = document.querySelector(".game_id_label");
     player_list_element = document.querySelector(".player_list");
@@ -21,14 +20,26 @@ function handleLobbyUpdate(messageContent){
             enemy_names.push(player.name);
             enemy_id.push(player.id);
         }
-        let joinedPlayer = document.createElement("li");
-        joinedPlayer.setAttribute('id', player.id);
-        let textnode = document.createTextNode(player.name);
-        joinedPlayer.appendChild(textnode);
-        list.appendChild(joinedPlayer);
+        let div = document.createElement("div");
+        let cross = document.createElement("img");
+        cross.classList.add("cross");
+        cross.id = player.id;
+        cross.src = "../images/cross.png";
+        cross.onmouseover = (evt) => { evt.srcElement.src = "../images/cross_hovered.png"; };
+        cross.onmouseout = (evt) => { evt.srcElement.src = "../images/cross.png"; };
+        cross.onclick = kick_player;
+        let li = document.createElement("li");
+        let playername = document.createTextNode(player.name);
+        div.appendChild(cross);
+        div.appendChild(playername);
+        li.appendChild(div);
+        list.appendChild(li);
     }
-
     adjustPlayerList();
+}
+
+function kick_player(msg){
+    socket.send(new Message(OpCode.KICK_PLAYER, msg.srcElement.id).toJson());
 }
 
 function adjustPlayerList(){
@@ -39,7 +50,7 @@ function adjustPlayerList(){
         }
     }
 
-    player_list_element.style.width = `${longest_name*10}pt`;
+    player_list_element.style.width = `${longest_name*10 + 20}pt`;
 }
 
 function handleStartGameResponse(){
