@@ -30,12 +30,15 @@ public class Snake {
     @Expose(serialize = false, deserialize = false)
     public final transient Set<Coordinate> collectedItems; //DO NOT represent player owned items - are used to delete items from itemPositions after every iteration
     @Expose(serialize = false, deserialize = false)
-    public transient boolean doesAcceptMovementData = false;
+    public transient boolean doesAcceptMovementData;
 
 
     Snake(Map<Coordinate, Item> itemPositions, Set<Coordinate> collectedItems){
         this.itemPositions = itemPositions;
         this.collectedItems = collectedItems;
+        synchronized (directionMutex) {
+            doesAcceptMovementData = true;
+        }
         snakeToStartPosition();
         snakeMovementDataReset();
     }
@@ -207,5 +210,13 @@ public class Snake {
         }
     }
 
-
+    public void trimOrDie(int size){
+        int cutoffSize = snakeFields.size() - size;
+        if (size == occupiedFields.size()){
+            lives -= 1;
+        }
+        for (int c= 0; c < cutoffSize; c++){
+            occupiedFields.remove(snakeFields.removeLast());
+        }
+    }
 }

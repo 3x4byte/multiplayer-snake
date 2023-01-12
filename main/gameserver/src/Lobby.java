@@ -1,6 +1,5 @@
 import com.google.gson.annotations.Expose;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -26,7 +25,7 @@ public class Lobby {
         this.ID = id;
     }
 
-    public void startGame(){
+    public void initializeGame(){
         this.game = new Game(members);
     }
 

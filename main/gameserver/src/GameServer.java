@@ -1,4 +1,3 @@
-import com.google.gson.annotations.Expose;
 import com.google.gson.internal.LinkedTreeMap;
 import org.java_websocket.WebSocket;
 import org.java_websocket.handshake.ClientHandshake;
@@ -98,38 +97,10 @@ public class GameServer {
     }
 
     /**
-     * Continuously scans all the available lobbies to check if they need updates. This ensures
-     * We do not have to use busy waiting and the Threads from the thread-pool executor are working always.
-     * This further decouples the individual Games from a fixed Server Tick Time.
-     */
-    public void run(){
-        this.isRunning = true;
-        /*
-        while (isRunning){
-            for (Map.Entry<String, Lobby> lobbyEntry : lobbies.entrySet()) {
-                Lobby lobby = lobbyEntry.getValue();
-                long currentTime = System.currentTimeMillis();
-                if (lobby.game != null) {
-                    synchronized (lobby.game.lastUpdatedAtRWMutex) {
-                        if (lobby.game.state.equals(Game.State.RUNNING) && (currentTime - lobby.game.lastUpdatedAt) >= lobby.game.fastestSnakeSpeed) {
-                            lobby.game.lastUpdatedAt = currentTime;
-                            System.out.println("UPDATING LOBBY");
-                            executorService.execute(lobby.game.update);
-                        }
-                    }
-                }
-            }
-        }
-        */
-
-    }
-
-    /**
      * Eligible for spawning the GameServer
      */
     public static void main(String[] args) {
         GameServer gameServer = new GameServer();
-        gameServer.run();
     }
 
 
@@ -176,6 +147,7 @@ public class GameServer {
      * @return always empty optional
      */
     public Optional<WSMessage> handlePlayerMove(WSMessage message){
+        System.out.println(message.getOpcode() + " sent ");
         Player player = players.get(message.getSender());
         player.snake.changeDirection(message.getOpcode()); //gameData should not be null
         return Optional.empty();
@@ -237,7 +209,7 @@ public class GameServer {
                     p.connection.send(new WSMessage(OpCode.START_GAME_RESPONSE).jsonify());
                 }
             }
-            lobby.startGame();
+            lobby.initializeGame();
             new Thread(() -> lobby.game.gameloop()).start();
         }
         return Optional.empty();

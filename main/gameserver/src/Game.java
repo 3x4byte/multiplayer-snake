@@ -16,7 +16,6 @@ public class Game {
 
     public static final int apples = 2; // the amount of apples that should be present at all time
 
-    public long lastUpdatedAt = 0; //lobby will be updated as soon as it is created
     public final Object lastUpdatedAtRWMutex = new Object();
     public State state = State.RUNNING;
     public final Map<Integer, Player> participants; // maps player IDs to Player Objects - in the future will allow to target actions from players to players
@@ -36,9 +35,9 @@ public class Game {
     // GAME DATA
     // The Snakes speed determines how long it takes per field
     public float fastestSnakeSpeed = SNAKE_SPEED; // multipliers may be applied here. The update speed of a lobby always depends on the fastest snake
-    private long timeTillNextDeath;
-    private Player currentlyLongest;
-
+    private long roundLengthMS = 20000;
+    private long timeTillNextDeathMS = roundLengthMS;
+    public long lastUpdatedAt = 0;
     private Random random = new Random();
 
     /**
@@ -47,13 +46,14 @@ public class Game {
     public Runnable update = new Runnable() {
         @Override
         public void run() {
-            progress();
+           // progress();
         }
     };
 
+
     enum State {
         RUNNING,
-        STOPPED,
+        STOPPED;
     }
 
     Game(Map<Integer, Player> participants){
@@ -70,13 +70,15 @@ public class Game {
      *
      * all player state updates are handles as essentially round trip data - the players game is not extrapolated but updates only on websocket msg.
      */
-    private void progress(){
+    private void progress(long now){
         Player[] players = new Player[participants.size()];
         int i = 0;
         int deadPlayers = 0;
-        for (Map.Entry<Integer, Player> entrySet : participants.entrySet()){
+        int shortestLength = Integer.MAX_VALUE;
+
+        Set<Map.Entry<Integer, Player>> entries = participants.entrySet();
+        for (Map.Entry<Integer, Player> entrySet : entries){
             Player player = entrySet.getValue();
-            //System.out.println("UPDATING PLAYER " + player.id);
             if (player.snake.lives > 0) {
 
                 if (player.snake.collided) {
@@ -84,12 +86,28 @@ public class Game {
                     player.snake.snakeMovementDataReset();
                 } else {
                     player.snake.move();
+                    int length = player.snake.occupiedFields.size();
+                    if (length < shortestLength){
+                        shortestLength = length;
+                    }
                 }
 
                 players[i++] = player;
             } else {
                 deadPlayers += 1;
             }
+        }
+
+        timeTillNextDeathMS -= now-lastUpdatedAt;
+        if (timeTillNextDeathMS <= 0) {
+            System.out.println("CUTTING");
+            System.out.println("TTND: " + timeTillNextDeathMS +  " " + lastUpdatedAt);
+            for (Map.Entry<Integer, Player> entrySet : entries) {
+                Player player = entrySet.getValue();
+                player.snake.trimOrDie(shortestLength);
+            }
+            lastUpdatedAt = now;
+            timeTillNextDeathMS = roundLengthMS;
         }
 
         if(deadPlayers == participants.size()) {
@@ -105,7 +123,7 @@ public class Game {
         WSMessage messagePlayerPositions = new WSMessage(OpCode.PLAYER_POSITIONS, players);
         String playerPositionsAsJson = messagePlayerPositions.jsonify();
         // send the "snakes" data to all players
-        for (Map.Entry<Integer, Player> entrySet : participants.entrySet()){
+        for (Map.Entry<Integer, Player> entrySet : entries){
             Player player = entrySet.getValue();
 
             if (player.connection.isOpen()) {
@@ -117,6 +135,8 @@ public class Game {
     }
 
     public void gameloop(){
+        //timeAtFirstUpdate = System.currentTimeMillis();
+        lastUpdatedAt = System.currentTimeMillis();
         while (state.equals(State.RUNNING)){
             try {
                 Thread.sleep((long) TICK_DURATION);
@@ -124,7 +144,7 @@ public class Game {
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
-            progress();
+            progress(System.currentTimeMillis());
             gameloop();
         }
     }
