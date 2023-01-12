@@ -44,10 +44,10 @@ public class Game {
     /**
      * Will be called by a worker Thread of the GameServer to progress the game
      */
-    public Runnable update = new Runnable() {
+    public Runnable RunGame = new Runnable() {
         @Override
         public void run() {
-            progress();
+            gameloop();
         }
     };
 
