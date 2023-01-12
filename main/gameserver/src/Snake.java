@@ -8,6 +8,7 @@ import java.util.*;
  * further provides methods for the Game instance to manage the snake Object.
  */
 public class Snake {
+    public static final int INITIAL_LENGTH = 3;
 
     @Expose(serialize = false, deserialize = false)
     public transient float speedFactor = 1;
@@ -211,7 +212,7 @@ public class Snake {
     }
 
     public void trimOrDie(int size){
-        int cutoffSize = snakeFields.size() - size;
+        int cutoffSize = snakeFields.size() - INITIAL_LENGTH;
         if (size == occupiedFields.size()){
             lives -= 1;
         }
