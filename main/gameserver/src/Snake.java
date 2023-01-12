@@ -212,7 +212,7 @@ public class Snake {
     }
 
     public void trimOrDie(int size){
-        int cutoffSize = snakeFields.size() - INITIAL_LENGTH;
+        int cutoffSize = size - INITIAL_LENGTH;
         if (size == occupiedFields.size()){
             lives -= 1;
         }
