@@ -48,3 +48,8 @@
     width: 0.75vw;
     height: auto;
 }
+
+.timer{
+    margin-right: 8%;
+    float: right;
+}

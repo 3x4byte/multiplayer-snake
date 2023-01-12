@@ -12,6 +12,7 @@ var width_enemies;
 var num_rows = 10;
 var apples_coordinates;
 var is_collided;
+var apple_img = new Image();
 
 function onLoadGame(){
     socket.onmessage = handleMessage;
@@ -22,8 +23,10 @@ function onLoadGame(){
     lives_enemies_field = document.querySelectorAll(".lives")
     canvas = document.querySelector(".own_game");
     canvas_enemies = document.querySelectorAll(".enemy");
+    apple_img.src = "../images/apple.png";
     is_collided = false;
-    windowResized();}
+    windowResized();
+}
 
 // adding resize event to scale the canvases
 window.addEventListener("resize", windowResized);
@@ -157,6 +160,7 @@ function updateItems(data){
 
 function drawApples(apples, ctx, ctx_width){
     let tile_size = (ctx_width-1)/num_rows;
+    /*
     ctx.beginPath();
     ctx.fillStyle = "red";
     for(let apple of apples){
@@ -164,6 +168,13 @@ function drawApples(apples, ctx, ctx_width){
     }
     ctx.fill();
     ctx.closePath();
+    */
+
+    for(let apple of apples) {
+        ctx.drawImage(apple_img, apple[0]*tile_size+(tile_size*0.1), apple[1]*tile_size+(tile_size*0.1), tile_size*0.8, tile_size*0.8);
+    }
+
+
 
 }
 

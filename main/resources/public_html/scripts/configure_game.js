@@ -16,7 +16,7 @@ function createLobby(){
     if(player_number < 4)
         return highlightElement(player_number_field);
 
-    if(player_number > 8)
+    if(player_number > 9)
         return highlightElement(player_number_field);
 
     // "redirect"

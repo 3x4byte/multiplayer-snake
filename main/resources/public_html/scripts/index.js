@@ -2,9 +2,13 @@ var username_input;
 var username;
 var game_id_input;
 var game_id;
+var debug_username;
+var debug_game_id;
 function onLoadIndex(){
     username_input = document.querySelector(".username");
     game_id_input = document.querySelector(".game_id");
+    debug_username = document.querySelector(".debug_username");
+    debug_game_id = document.querySelector(".debug_game_id");
     updateUsername();
     updateGameId();
 }
@@ -14,7 +18,8 @@ function handleConnectionResponse(data){
 }
 
 function updateUsername(){
-    username = username_input.value;
+    username = username_input.value.trim();
+    username_input.value = username;
     /* updates every time the input changes
     if (socket.readyState === WebSocket.OPEN) {
         socket.send(new Message(OpCode.SET_NAME, username).toJson())
@@ -24,19 +29,56 @@ function updateUsername(){
 }
 function updateGameId(){
     game_id = game_id_input.value;
+    if(!isNaN(game_id)){
+        game_id = `#${game_id}`
+    }
 }
 
 function configureGame(){
-    if(username.length > 0){
+    if(username_check()){
         if (socket.readyState === WebSocket.OPEN) {
             socket.send(new Message(OpCode.SET_NAME, username).toJson())
         }
         socket.send(new Message(OpCode.CONFIGURE_LOBBY).toJson()) //redirect is now round trip
-    }else{
-        highlightElement(username_input);
     }
 }
+function username_check(){
+    debug_username.innerText = "";
+    if(username.length === 0){
+        debug_username.innerText = "enter a username";
+        highlightElement(username_input);
+        return false;
+    }
 
+    if(username.length > 10){
+        debug_username.innerText = "username is to long";
+        highlightElement(username_input);
+        return false;
+    }
+
+    return true;
+}
+
+function game_id_check(){
+    debug_game_id.innerText = "";
+    if(!game_id.startsWith("#")){
+        debug_game_id.innerText = "game id contains no letters";
+        highlightElement(game_id_input);
+        return false;
+    }
+    if(isNaN(game_id.substring(1))){
+        debug_game_id.innerText = "game id contains no letters";
+        highlightElement(game_id_input);
+        return false;
+    }
+    if(game_id.length < 2){
+        debug_game_id.innerText = "enter a game id";
+        highlightElement(game_id_input);
+        return false;
+    }
+
+    return true;
+}
 function handleConfigureGameResponse(msgContent){
     sLobby = msgContent
     index.style.display = "none";
@@ -45,16 +87,16 @@ function handleConfigureGameResponse(msgContent){
 
 
 function joinGame(){
-    if(username.length === 0){
-        highlightElement(username_input);
-    }else if(game_id.length === 0){
-        highlightElement(game_id_input);
+    if(!username_check()){
+        return;
     }
-    else{
+    if(!game_id_check()){
+        return;
+    }
 
-        socket.send(new Message(OpCode.SET_NAME, username).toJson());
-        socket.send(new Message(OpCode.JOIN_LOBBY, game_id).toJson()); // is now round trip
-    }
+    socket.send(new Message(OpCode.SET_NAME, username).toJson());
+    socket.send(new Message(OpCode.JOIN_LOBBY, game_id).toJson()); // is now round trip
+
 }
 
 function handleJoinGameResponse(msgContent){
@@ -63,7 +105,7 @@ function handleJoinGameResponse(msgContent){
         game_id_label_field.innerText = sLobby.ID;
 
         let startBtn = document.querySelector(".start_game");
-        startBtn.remove()
+        startBtn.remove();
 
         // "redirect"
         index.style.display = "none";
