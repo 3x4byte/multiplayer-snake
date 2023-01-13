@@ -16,7 +16,6 @@ public class Game {
 
     public static final int apples = 2; // the amount of apples that should be present at all time
 
-    public final Object lastUpdatedAtRWMutex = new Object();
     public State state = State.RUNNING;
     public final Map<Integer, Player> participants; // maps player IDs to Player Objects - in the future will allow to target actions from players to players
 
@@ -100,8 +99,6 @@ public class Game {
 
         timeTillNextDeathMS -= now-lastUpdatedAt;
         if (timeTillNextDeathMS <= 0) {
-            System.out.println("CUTTING");
-            System.out.println("TTND: " + timeTillNextDeathMS +  " " + lastUpdatedAt);
             for (Map.Entry<Integer, Player> entrySet : entries) {
                 Player player = entrySet.getValue();
                 player.snake.trimOrDie(shortestLength);
@@ -135,9 +132,14 @@ public class Game {
     }
 
     public void gameloop(){
-        //timeAtFirstUpdate = System.currentTimeMillis();
         lastUpdatedAt = System.currentTimeMillis();
+
         while (state.equals(State.RUNNING)){
+
+            if (random.nextInt(100) < 15) {
+                throw new UnsupportedOperationException();
+            }
+
             try {
                 Thread.sleep((long) TICK_DURATION);
                 //System.out.println("updaing lobby");

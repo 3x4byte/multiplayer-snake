@@ -7,11 +7,13 @@ import java.net.InetSocketAddress;
 import java.util.*;
 import java.util.concurrent.*;
 
+
 /**
  * Manages Multiplayer-Snake Games.
  * Defines the {@link WebSocket} behaviour via dependency injection.
  */
 public class GameServer {
+
     private final int PORT = 5001;
     private final Random random = new Random();
     private final Object lobbyCreationMutex = new Object();
@@ -20,12 +22,17 @@ public class GameServer {
     private final ConcurrentMap<WebSocket, Player> players = new ConcurrentHashMap<>(); //requires concurrent - thread safe access
     private final ConcurrentMap<String, Lobby> lobbies = new ConcurrentHashMap<>(); //maps lobby ids to lobbies
 
-    ExecutorService executorService = Executors.newCachedThreadPool();
+    ExecutorService executorService;
 
     private GameServer(){
+        GlobalExceptionHandler exceptionHandler = new GlobalExceptionHandler();
+        Thread.setDefaultUncaughtExceptionHandler(exceptionHandler);
+
         server = new WSServer<WSMessage>(new InetSocketAddress(PORT), new WSMessageHandler(), WSMessage.class);
         server.setOnConnectionEventListener(new OnConnectionEvent());
         server.start();
+
+        executorService = Executors.newCachedThreadPool();
     }
 
     /**
@@ -210,7 +217,9 @@ public class GameServer {
                 }
             }
             lobby.initializeGame();
-            executorService.submit(lobby.game.RunGame);
+            //executorService.submit(lobby.game.RunGame);
+            new Thread(lobby.game.RunGame).start();
+
         }
         return Optional.empty();
     }
