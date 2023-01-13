@@ -139,18 +139,20 @@ function updatePlayers(data){
                 ctx = canvas.getContext("2d");
                 ctx.clearRect(0, 0, width, width);
                 drawApples(apples_coordinates, ctx, width);
-                drawOwnSnake(ctx, snake.snakeFields);
+                drawSnake(ctx, snake.snakeFields, width);
                 drawGrid(ctx, width);
             } else {
                 ctx = canvas_enemies[enemy_id.indexOf(id)].getContext("2d");
                 ctx.clearRect(0, 0, width_enemies, width_enemies);
                 drawApples(apples_coordinates, ctx, width_enemies);
-                drawSnake(ctx, snake.snakeFields);
+                drawSnake(ctx, snake.snakeFields, width_enemies);
                 drawGrid(ctx, width_enemies);
             }
             updateLives(snake.lives, id);
             updateCollision(snake.collided, id);
 
+        }else{
+            // TODO dead player
         }
     }
 }
@@ -197,67 +199,11 @@ function drawApples(apples, ctx, ctx_width){
 
 
 }
-/*
-function drawOwnSnake(ctx, positions){
-    let tile_size = (width-1)/num_rows;
 
-    ctx.beginPath();
-    // drawing head
-    ctx.fillStyle = "darkgreen";
-    let head = positions[0];
-    ctx.fillRect(head.x*tile_size+tile_size/3, head.y*tile_size+tile_size/3, tile_size/3, tile_size/3);
-
-    for(let i = 1; i < positions.length; i++){
-        ctx.fillStyle = "green";
-
-        // drawing center rect
-        ctx.fillRect(positions[i].x*tile_size+tile_size/3, positions[i].y*tile_size+tile_size/3, tile_size/3, tile_size/3);
-
-        //drawing connecting rect
-        if(positions[i].x < positions[i-1].x){
-            ctx.fillRect(positions[i].x*tile_size+tile_size/3*2, positions[i].y*tile_size+tile_size/3, tile_size/3, tile_size/3);
-            ctx.fillRect(positions[i-1].x*tile_size, positions[i-1].y*tile_size+tile_size/3, tile_size/3, tile_size/3);
-
-        }else if(positions[i].x > positions[i-1].x){
-            ctx.fillRect(positions[i].x*tile_size, positions[i].y*tile_size+tile_size/3, tile_size/3, tile_size/3);
-            ctx.fillRect(positions[i-1].x*tile_size+tile_size/3*2, positions[i-1].y*tile_size+tile_size/3, tile_size/3, tile_size/3);
-
-        }else if(positions[i].y < positions[i-1].y){
-            ctx.fillRect(positions[i].x*tile_size+tile_size/3, positions[i].y*tile_size+tile_size/3*2, tile_size/3, tile_size/3);
-            ctx.fillRect(positions[i-1].x*tile_size+tile_size/3, positions[i-1].y*tile_size, tile_size/3, tile_size/3);
-
-        }else if(positions[i].y > positions[i-1].y) {
-            ctx.fillRect(positions[i].x*tile_size+tile_size/3, positions[i].y*tile_size, tile_size/3, tile_size/3);
-            ctx.fillRect(positions[i-1].x*tile_size+tile_size/3, positions[i-1].y*tile_size+tile_size/3*2, tile_size/3, tile_size/3);
-
-        }
-    }
-    ctx.fill();
-    ctx.closePath();
-
-}
-*/
-
-function drawOwnSnake(ctx, positions){
+function drawSnake(ctx, positions, width){
     let tile_size = (width-1)/num_rows;
 
     ctx.imageSmoothingEnabled = false;
-
-    let head = positions[0];
-    let next = positions[1];
-
-    if(head.x > next.x){
-        ctx.drawImage(head_img_2, head.x*tile_size, head.y*tile_size, tile_size, tile_size);
-    }
-    else if(head.x < next.x){
-        ctx.drawImage(head_img_4, head.x*tile_size, head.y*tile_size, tile_size, tile_size);
-    }
-    else if(head.y > next.y){
-        ctx.drawImage(head_img_3, head.x*tile_size, head.y*tile_size, tile_size, tile_size);
-    }
-    else if(head.y < next.y){
-        ctx.drawImage(head_img_1, head.x*tile_size, head.y*tile_size, tile_size, tile_size);
-    }
 
     for (let i = 1; i < positions.length-1; i++) {
 
@@ -297,27 +243,23 @@ function drawOwnSnake(ctx, positions){
         ctx.drawImage(tail_img_1, tail.x*tile_size, tail.y*tile_size, tile_size, tile_size);
     }
 
-}
+    let head = positions[0];
+    let next = positions[1];
 
-function drawSnake(ctx, positions){
-    let tile_size = (width_enemies-1)/num_rows;
-
-    let head = true;
-    ctx.beginPath();
-    // loops over the tail coordinates
-    for(let position of positions){
-        ctx.fillStyle = "green";
-        if(head){
-            ctx.fillStyle = "darkgreen";
-            head = false;
-        }
-        ctx.fillRect(position.x * tile_size, position.y * tile_size, tile_size, tile_size);
+    if(head.x > next.x){
+        ctx.drawImage(head_img_2, head.x*tile_size, head.y*tile_size, tile_size, tile_size);
+    }
+    else if(head.x < next.x){
+        ctx.drawImage(head_img_4, head.x*tile_size, head.y*tile_size, tile_size, tile_size);
+    }
+    else if(head.y > next.y){
+        ctx.drawImage(head_img_3, head.x*tile_size, head.y*tile_size, tile_size, tile_size);
+    }
+    else if(head.y < next.y){
+        ctx.drawImage(head_img_1, head.x*tile_size, head.y*tile_size, tile_size, tile_size);
     }
 
-    ctx.fill();
-    ctx.closePath();
 }
-
 
 function keyInput(evt){
     // whitelist of keys to be sent
