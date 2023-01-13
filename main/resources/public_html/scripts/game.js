@@ -13,6 +13,20 @@ var num_rows = 10;
 var apples_coordinates;
 var is_collided;
 var apple_img = new Image();
+var head_img_1 = new Image();
+var head_img_2 = new Image();
+var head_img_3 = new Image();
+var head_img_4 = new Image();
+var straight_img_1 = new Image();
+var straight_img_2 = new Image();
+var corner_img_1 = new Image();
+var corner_img_2 = new Image();
+var corner_img_3 = new Image();
+var corner_img_4 = new Image();
+var tail_img_1 = new Image();
+var tail_img_2 = new Image();
+var tail_img_3 = new Image();
+var tail_img_4 = new Image();
 
 function onLoadGame(){
     socket.onmessage = handleMessage;
@@ -24,6 +38,20 @@ function onLoadGame(){
     canvas = document.querySelector(".own_game");
     canvas_enemies = document.querySelectorAll(".enemy");
     apple_img.src = "../images/apple.png";
+    head_img_1.src = "../images/head_1.png";
+    head_img_2.src = "../images/head_2.png";
+    head_img_3.src = "../images/head_3.png";
+    head_img_4.src = "../images/head_4.png";
+    straight_img_1.src = "../images/straight_1.png";
+    straight_img_2.src = "../images/straight_2.png";
+    corner_img_1.src = "../images/corner_1.png";
+    corner_img_2.src = "../images/corner_2.png";
+    corner_img_3.src = "../images/corner_3.png";
+    corner_img_4.src = "../images/corner_4.png";
+    tail_img_1.src = "../images/tail_1.png";
+    tail_img_2.src = "../images/tail_2.png";
+    tail_img_3.src = "../images/tail_3.png";
+    tail_img_4.src = "../images/tail_4.png";
     is_collided = false;
     windowResized();
 }
@@ -160,24 +188,16 @@ function updateItems(data){
 
 function drawApples(apples, ctx, ctx_width){
     let tile_size = (ctx_width-1)/num_rows;
-    /*
-    ctx.beginPath();
-    ctx.fillStyle = "red";
-    for(let apple of apples){
-        ctx.ellipse(apple[0]*tile_size+(tile_size/2), apple[1]*tile_size+(tile_size/2), tile_size/3, tile_size/3, 0, 0, 360);
-    }
-    ctx.fill();
-    ctx.closePath();
-    */
+
+    ctx.imageSmoothingEnabled = false;
 
     for(let apple of apples) {
         ctx.drawImage(apple_img, apple[0]*tile_size+(tile_size*0.1), apple[1]*tile_size+(tile_size*0.1), tile_size*0.8, tile_size*0.8);
     }
 
 
-
 }
-
+/*
 function drawOwnSnake(ctx, positions){
     let tile_size = (width-1)/num_rows;
 
@@ -216,7 +236,68 @@ function drawOwnSnake(ctx, positions){
     ctx.closePath();
 
 }
+*/
 
+function drawOwnSnake(ctx, positions){
+    let tile_size = (width-1)/num_rows;
+
+    ctx.imageSmoothingEnabled = false;
+
+    let head = positions[0];
+    let next = positions[1];
+
+    if(head.x > next.x){
+        ctx.drawImage(head_img_2, head.x*tile_size, head.y*tile_size, tile_size, tile_size);
+    }
+    else if(head.x < next.x){
+        ctx.drawImage(head_img_4, head.x*tile_size, head.y*tile_size, tile_size, tile_size);
+    }
+    else if(head.y > next.y){
+        ctx.drawImage(head_img_3, head.x*tile_size, head.y*tile_size, tile_size, tile_size);
+    }
+    else if(head.y < next.y){
+        ctx.drawImage(head_img_1, head.x*tile_size, head.y*tile_size, tile_size, tile_size);
+    }
+
+    for (let i = 1; i < positions.length-1; i++) {
+
+        if(positions[i-1].x > positions[i].x && positions[i].x > positions[i+1].x || positions[i-1].x < positions[i].x && positions[i].x < positions[i+1].x){
+            ctx.drawImage(straight_img_2, positions[i].x*tile_size, positions[i].y*tile_size, tile_size, tile_size);
+        }
+        else if(positions[i-1].y > positions[i].y && positions[i].y > positions[i+1].y || positions[i-1].y < positions[i].y && positions[i].y < positions[i+1].y){
+            ctx.drawImage(straight_img_1, positions[i].x*tile_size, positions[i].y*tile_size, tile_size, tile_size);
+        }
+        else if(positions[i-1].y < positions[i].y && positions[i].x < positions[i+1].x || positions[i-1].x > positions[i].x && positions[i].y > positions[i+1].y){
+            ctx.drawImage(corner_img_1, positions[i].x*tile_size, positions[i].y*tile_size, tile_size, tile_size);
+        }
+        else if(positions[i-1].x > positions[i].x && positions[i].y < positions[i+1].y || positions[i-1].y > positions[i].y && positions[i].x < positions[i+1].x){
+            ctx.drawImage(corner_img_2, positions[i].x*tile_size, positions[i].y*tile_size, tile_size, tile_size);
+        }
+        else if(positions[i-1].y > positions[i].y && positions[i].x > positions[i+1].x || positions[i-1].x < positions[i].x && positions[i].y < positions[i+1].y){
+            ctx.drawImage(corner_img_3, positions[i].x*tile_size, positions[i].y*tile_size, tile_size, tile_size);
+        }
+        else if(positions[i-1].x < positions[i].x && positions[i].y > positions[i+1].y || positions[i-1].y < positions[i].y && positions[i].x > positions[i+1].x){
+            ctx.drawImage(corner_img_4, positions[i].x*tile_size, positions[i].y*tile_size, tile_size, tile_size);
+        }
+    }
+
+    let before = positions[positions.length-2];
+    let tail = positions[positions.length-1];
+
+    if(before.x > tail.x){
+        ctx.drawImage(tail_img_2, tail.x*tile_size, tail.y*tile_size, tile_size, tile_size);
+    }
+    else if(before.x < tail.x){
+        ctx.drawImage(tail_img_4, tail.x*tile_size, tail.y*tile_size, tile_size, tile_size);
+    }
+    else if(before.y > tail.y){
+        ctx.drawImage(tail_img_3, tail.x*tile_size, tail.y*tile_size, tile_size, tile_size);
+    }
+    else if(before.y < tail.y){
+        ctx.drawImage(tail_img_1, tail.x*tile_size, tail.y*tile_size, tile_size, tile_size);
+    }
+
+}
 
 function drawSnake(ctx, positions){
     let tile_size = (width_enemies-1)/num_rows;
