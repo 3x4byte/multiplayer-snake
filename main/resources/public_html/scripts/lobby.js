@@ -74,3 +74,9 @@ function handleStartGameResponse(){
     lobby.style.display = "none";
     game.style.display = "contents";
 }
+
+function handleKickPlayerResponse(){
+    debug_text.innerText = "you have been kicked!";
+    lobby.style.display = "none";
+    index.style.display = "contents";
+}
