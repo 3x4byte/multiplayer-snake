@@ -15,6 +15,7 @@ enum OpCode implements WSServer.OpCode {
     START_GAME_RESPONSE, //nothing
     JOIN_LOBBY, // expects a string
     JOIN_LOBBY_RESPONSE, // sends a lobby
+    JOIN_LOBBY_FAILED, // nothing
     LEAVE_LOBBY, // nothing
     LEAVE_LOBBY_RESPONSE, // sends a boolean
     LOBBY_UPDATE, // sends a lobby

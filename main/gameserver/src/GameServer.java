@@ -122,14 +122,17 @@ public class GameServer {
      */
     public Optional<WSMessage> handleJoinLobby(WSMessage message){ //todo check if player is already subscribed to lobby!
         Player player = players.get(message.getSender());
-        //System.out.println("LobbyId" + message.getContent(String.class));
         String lobbyId = message.getContent(String.class);
         Lobby lobby = lobbies.get(lobbyId);
-        if (lobby.join(player)){
-            sendLobbyUpdate(lobby);
-            return Optional.of(new WSMessage(OpCode.JOIN_LOBBY_RESPONSE, lobby));
+        if (lobby != null) {
+            boolean success = lobby.join(player);
+            if (success) {
+                sendLobbyUpdate(lobby);
+                return Optional.of(new WSMessage(OpCode.JOIN_LOBBY_RESPONSE, lobby));
+            }
         }
-        return Optional.empty();
+
+        return Optional.of(new WSMessage(OpCode.JOIN_LOBBY_FAILED, null));
     }
 
     /**
@@ -147,6 +150,13 @@ public class GameServer {
                 if (p.connection.isOpen()){
                     p.connection.send(updateMessage.jsonify());
                 }
+            }
+        }
+
+        if (lobby.members.size() == 0) {
+            synchronized (lobbyCreationMutex) {
+                System.out.println("removing lobby");
+                lobbies.remove(lobby.ID);
             }
         }
 
