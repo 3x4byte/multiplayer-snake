@@ -147,6 +147,14 @@ public class Game {
             progress(System.currentTimeMillis());
             gameloop();
         }
+
+        /* todo consider sending players back to the lobby
+        for (Player p: participants.values()){
+            if (p.connection.isOpen()) {
+                p.connection.send();
+            }
+        }
+         */
     }
 
     // puts apples at free fields but can be used in the future

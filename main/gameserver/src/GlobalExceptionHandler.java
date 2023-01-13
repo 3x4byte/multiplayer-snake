@@ -23,9 +23,9 @@ class GlobalExceptionHandler implements Thread.UncaughtExceptionHandler {
                 out.println(s);
             }
             out.println();
-            //more code
+
         } catch (IOException ae) {
-            //exception handling left as an exercise for the reader
+            ae.printStackTrace();
         }
     }
 }
