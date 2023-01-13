@@ -11,7 +11,7 @@ enum OpCode implements WSServer.OpCode {
     CONFIGURE_LOBBY_RESPONSE, // sends a lobby
     CREATE_LOBBY, // expects a lobby
     CREATE_LOBBY_RESPONSE, // sends a lobby
-    START_GAME, // nothing
+    START_GAME, // long
     START_GAME_RESPONSE, //nothing
     JOIN_LOBBY, // expects a string
     JOIN_LOBBY_RESPONSE, // sends a lobby
@@ -26,6 +26,7 @@ enum OpCode implements WSServer.OpCode {
     PLAYER_POSITIONS, //sends a player objects list
     ITEM_POSITIONS, // sends a list of coordinates
     KICK_PLAYER, // expects a string
-    KICK_PLAYER_RESPONSE // nothing
+    KICK_PLAYER_RESPONSE, // nothing
+    GAME_STOPPED // send list on players
     ;
 }

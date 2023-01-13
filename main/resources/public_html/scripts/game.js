@@ -279,9 +279,9 @@ function keyInput(evt){
 }
 
 function handleMessage(websocketMessage){
-    //console.log("Incoming message: " + websocketMessage.data); //only delete after debugging please
+    console.log("Incoming message: " + websocketMessage.data); //only delete after debugging please
     let message = Message.fromJson(websocketMessage.data);
-    //console.log("Parsed message: ", message); //only delete after debugging please
+    console.log("Parsed message: ", message); //only delete after debugging please
 
     switch (message.opCode){
         case OpCode.PLAYER_POSITIONS: updatePlayers(message.content); break;

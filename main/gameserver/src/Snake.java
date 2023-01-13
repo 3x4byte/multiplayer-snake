@@ -13,7 +13,7 @@ public class Snake {
     @Expose(serialize = false, deserialize = false)
     public transient float speedFactor = 1;
     @Expose
-    public int lives = 3; //?
+    private int lives = 3;
     @Expose(serialize = false, deserialize = false)
     public transient OpCode lastDirection; //the message OpCodes double as directional data - saves processing
     @Expose(serialize = false, deserialize = false)
@@ -32,6 +32,8 @@ public class Snake {
     public final transient Set<Coordinate> collectedItems; //DO NOT represent player owned items - are used to delete items from itemPositions after every iteration
     @Expose(serialize = false, deserialize = false)
     public transient boolean doesAcceptMovementData;
+    @Expose(serialize = false, deserialize = false)
+    public transient long diedAt = 0;
 
 
     Snake(Map<Coordinate, Item> itemPositions, Set<Coordinate> collectedItems){
@@ -109,7 +111,7 @@ public class Snake {
         collided = occupiedFields.contains(targetField) || targetField.x >= Game.WORLD_WIDTH || targetField.x < 0 ||
                 targetField.y >= Game.WORLD_HEIGHT || targetField.y < 0;
         if (collided){
-            lives -= 1;
+            subtractLive();
         } else {
             occupiedFields.add(targetField);
             // check for items at that field
@@ -214,11 +216,28 @@ public class Snake {
     public void trimOrDie(int size){
         int cutoffSize = size - INITIAL_LENGTH;
         if (size == occupiedFields.size()){
-            lives -= 1;
+            subtractLive();
         } else {
             for (int c = 0; c < cutoffSize; c++) {
                 occupiedFields.remove(snakeFields.removeLast());
             }
         }
+    }
+
+    public int size(){
+        return occupiedFields.size();
+    }
+
+    public void subtractLive(){
+        if (this.isAlive()) {
+            this.lives -= 1;
+            if (!this.isAlive()) {
+                this.diedAt = System.currentTimeMillis();
+            }
+        }
+    }
+
+    public boolean isAlive(){
+        return this.lives > 0;
     }
 }
