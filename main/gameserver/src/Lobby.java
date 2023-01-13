@@ -6,6 +6,9 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class Lobby {
 
+    public static final int MAX_LOBBY_SIZE = 9;
+    public static final int MIN_LOBBY_SIZE = 4;
+
     @Expose
     public final String ID;
     @Expose
@@ -31,7 +34,7 @@ public class Lobby {
 
     public boolean join(Player player){
         synchronized (membersRWLock){
-            if (lobbySize - members.size() > 0){
+            if (lobbySize - members.size() > 0 && !game.state.equals(Game.State.RUNNING)){
                 members.put(player.id, player);
                 player.subscribedToLobbyId = ID;
                 return true;

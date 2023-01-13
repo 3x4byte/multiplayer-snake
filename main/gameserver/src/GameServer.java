@@ -138,7 +138,7 @@ public class GameServer {
 
         // if the player left the lobby and the game is not running - notify users to update their lobby screen
         if (leftLobbySuccess && lobby.game == null){
-            WSMessage updateMessage = new WSMessage(OpCode.LOBBY_UPDATE, lobby.members.values());
+            WSMessage updateMessage = new WSMessage(OpCode.LOBBY_UPDATE, lobby);
             for (Player p: lobby.members.values()){
                 if (p.connection.isOpen()){
                     p.connection.send(updateMessage.jsonify());
@@ -184,18 +184,22 @@ public class GameServer {
         // workaround because GSON does not serialize the correct type for some reason
         LinkedTreeMap ltm = message.getContent(LinkedTreeMap.class);
         Lobby lobby = new Lobby((String) ltm.get("ID"));
-        lobby.lobbySize = Integer.parseInt((String) ltm.get("lobbySize"));
+        int lobbySize = Integer.parseInt((String) ltm.get("lobbySize"));
         lobbies.put(lobby.ID, lobby);
         lobby.owner = players.get(message.getSender());
 
+        if (lobbySize < Lobby.MIN_LOBBY_SIZE) {
+            lobby.lobbySize = Lobby.MIN_LOBBY_SIZE;
+        } else if (lobbySize > Lobby.MAX_LOBBY_SIZE) {
+            lobby.lobbySize = Lobby.MAX_LOBBY_SIZE;
+        } else {
+            lobby.lobbySize = lobbySize;
+        }
+
+        // auto joins the owner to the lobby
         handleJoinLobby(new WSMessage(message.getSender(), OpCode.ZERO, lobby.ID));
 
-        /* todo this is how it's supposed to work
-        Lobby lobby = message.getContent(Lobby.class);
-        lobby.join(players.get(message.getSender()));
-        lobbies.put(lobby.ID, lobby); //update the lobby
-         */
-
+        // show lobby screen to owner
         WSMessage response = new WSMessage(OpCode.CREATE_LOBBY_RESPONSE, lobby);
         return Optional.of(response);
     }
