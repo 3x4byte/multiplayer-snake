@@ -284,7 +284,7 @@ public class GameServer {
         OpCode opCode;
 
         if (player.equals(lobby.owner)){
-            opCode = OpCode.CONFIGURE_LOBBY_RESPONSE;
+            opCode = OpCode.CREATE_LOBBY_RESPONSE;
         } else if (code.equals(Lobby.LobbyJoinFailureCodes.SUCCESS)){
             opCode = OpCode.JOIN_LOBBY_RESPONSE;
         } else {
