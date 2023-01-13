@@ -34,15 +34,20 @@ public class Lobby {
     }
 
 
-    public boolean join(Player player){
-        synchronized (membersRWLock){
-            if (lobbySize - members.size() > 0 && !game.state.equals(Game.State.RUNNING)){
-                members.put(player.id, player);
-                player.subscribedToLobbyId = ID;
-                return true;
+    public LobbyJoinFailureCodes join(Player player){
+        synchronized (membersRWLock) {
+            if (lobbySize - members.size() > 0) {
+                if (!game.state.equals(Game.State.RUNNING)) {
+                    members.put(player.id, player);
+                    player.subscribedToLobbyId = ID;
+                    return LobbyJoinFailureCodes.SUCCESS;
+                } else {
+                    return LobbyJoinFailureCodes.STARTED;
+                }
+            } else {
+                return LobbyJoinFailureCodes.FULL;
             }
         }
-        return false;
     }
 
     public boolean leave(Player player){
@@ -52,5 +57,11 @@ public class Lobby {
         }
     }
 
+    enum LobbyJoinFailureCodes {
+        SUCCESS,
+        FULL,
+        NOT_EXISTING,
+        STARTED
+    }
 
 }

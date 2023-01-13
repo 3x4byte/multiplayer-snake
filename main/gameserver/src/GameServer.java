@@ -22,17 +22,16 @@ public class GameServer {
     private final ConcurrentMap<WebSocket, Player> players = new ConcurrentHashMap<>(); //requires concurrent - thread safe access
     private final ConcurrentMap<String, Lobby> lobbies = new ConcurrentHashMap<>(); //maps lobby ids to lobbies
 
-    ExecutorService executorService;
+    //ExecutorService executorService;
 
     private GameServer(){
         GlobalExceptionHandler exceptionHandler = new GlobalExceptionHandler();
         Thread.setDefaultUncaughtExceptionHandler(exceptionHandler);
 
-        server = new WSServer<WSMessage>(new InetSocketAddress(PORT), new WSMessageHandler(), WSMessage.class);
+        server = new WSServer<>(new InetSocketAddress(PORT), new WSMessageHandler(), WSMessage.class);
         server.setOnConnectionEventListener(new OnConnectionEvent());
         server.start();
 
-        executorService = Executors.newCachedThreadPool();
     }
 
     /**
@@ -124,15 +123,17 @@ public class GameServer {
         Player player = players.get(message.getSender());
         String lobbyId = message.getContent(String.class);
         Lobby lobby = lobbies.get(lobbyId);
+
+        Lobby.LobbyJoinFailureCodes code = Lobby.LobbyJoinFailureCodes.NOT_EXISTING;
         if (lobby != null) {
-            boolean success = lobby.join(player);
-            if (success) {
+            code = lobby.join(player);
+            if (code.equals(Lobby.LobbyJoinFailureCodes.SUCCESS)) {
                 sendLobbyUpdate(lobby);
                 return Optional.of(new WSMessage(OpCode.JOIN_LOBBY_RESPONSE, lobby));
             }
         }
 
-        return Optional.of(new WSMessage(OpCode.JOIN_LOBBY_FAILED, null));
+        return Optional.of(new WSMessage(OpCode.JOIN_LOBBY_FAILED, code)); //todo voll , gestarted, existiert nicht als codes
     }
 
     /**
@@ -155,7 +156,6 @@ public class GameServer {
 
         if (lobby.members.size() == 0) {
             synchronized (lobbyCreationMutex) {
-                System.out.println("removing lobby");
                 lobbies.remove(lobby.ID);
             }
         }
@@ -234,6 +234,7 @@ public class GameServer {
                     p.connection.send(new WSMessage(OpCode.START_GAME_RESPONSE).jsonify());
                 }
             }
+
             lobby.startGame();
             //executorService.submit(lobby.game.RunGame);
             new Thread(lobby.game.RunGame).start();

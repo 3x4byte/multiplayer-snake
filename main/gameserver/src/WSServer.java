@@ -1,9 +1,6 @@
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import org.java_websocket.WebSocket;
-import org.java_websocket.WebSocketImpl;
-import org.java_websocket.WebSocketListener;
-import org.java_websocket.drafts.Draft;
 import org.java_websocket.handshake.ClientHandshake;
 import org.java_websocket.server.WebSocketServer;
 
