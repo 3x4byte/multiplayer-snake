@@ -13,6 +13,13 @@
 .left, .right{
     width: 13.75%;
 }
+.left{
+    margin-left: 12vw;
+ }
+
+.right{
+    margin-right: 12vw;
+}
 
 .mid{
     width: calc(4 * (13.75% + 1% + 1vw + 3pt));
@@ -20,10 +27,10 @@
 
 .info-bar{
     margin: 0 auto;
-    width: 65.5%;
+    width: 40vw;
     font-size: 2.5vw;
     text-align: left;
-    padding-left: 0.5vw;
+    padding-left: 6vw;
 }
 
 .player{
@@ -51,6 +58,6 @@
 }
 
 .timer{
-    margin-right: 8%;
+    margin-right: 6vw;
     float: right;
 }

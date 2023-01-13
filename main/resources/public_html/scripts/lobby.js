@@ -65,6 +65,7 @@ function adjustPlayerList(){
 }
 
 function handleStartGameResponse(){
+    is_game_over = false;
     for(let name of enemy_names){
         name_field_enemies[enemy_names.indexOf(name)].innerText = name;
     }

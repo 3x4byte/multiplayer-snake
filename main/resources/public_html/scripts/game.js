@@ -12,6 +12,8 @@ var width_enemies;
 var num_rows = 10;
 var apples_coordinates;
 var is_collided;
+var timer_field;
+var is_game_over;
 var apple_img = new Image();
 var head_img_1 = new Image();
 var head_img_2 = new Image();
@@ -28,6 +30,7 @@ var tail_img_2 = new Image();
 var tail_img_3 = new Image();
 var tail_img_4 = new Image();
 
+
 function onLoadGame(){
     socket.onmessage = handleMessage;
 
@@ -37,6 +40,7 @@ function onLoadGame(){
     lives_enemies_field = document.querySelectorAll(".lives")
     canvas = document.querySelector(".own_game");
     canvas_enemies = document.querySelectorAll(".enemy");
+    timer_field = document.querySelector(".timer");
     apple_img.src = "../images/apple.png";
     head_img_1.src = "../images/head_1.png";
     head_img_2.src = "../images/head_2.png";
@@ -243,6 +247,7 @@ function drawSnake(ctx, positions, width){
 }
 
 function handleGameStoppedResponse(msg){
+    is_game_over = true;
     let ol = document.querySelector(".leaderboard_players");
     ol.textContent = "";
     for(let player of msg){
@@ -257,6 +262,26 @@ function handleGameStoppedResponse(msg){
     game.style.display = "contents";
     game_over.style.display = "flex";
 
+}
+
+function handleNextPlayerDeath(msg){
+    startTimer((parseInt(msg)/1000));
+}
+
+function startTimer(time){
+    timer_field.style.color = "#EEEEEE";
+
+    if(time < 4){
+        timer_field.style.color = "red";
+    }else if (time < 6){
+        timer_field.style.color = "orange";
+    }
+
+    timer_field.innerText = time;
+    time -= 1;
+    if (time > 0 && !is_game_over) {
+        setTimeout( startTimer, 1000, time);
+    }
 }
 
 function keyInput(evt){
@@ -312,6 +337,7 @@ function handleMessage(websocketMessage){
         case OpCode.CONNECTION_RESPONSE: handleConnectionResponse(message.content); break;
         case OpCode.KICK_PLAYER_RESPONSE: handleKickPlayerResponse(); break;
         case OpCode.GAME_STOPPED: handleGameStoppedResponse(message.content); break;
+        case OpCode.NEXT_PLAYER_DEATH: handleNextPlayerDeath(message.content); break;
     }
 }
 

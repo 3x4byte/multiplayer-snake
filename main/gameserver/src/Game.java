@@ -14,7 +14,7 @@ public class Game {
     public static final int WORLD_WIDTH = 10;
     public static final int WORLD_HEIGHT = WORLD_WIDTH;
 
-    public static final int apples = 2; // the amount of apples that should be present at all time
+    public int apples; // the amount of apples that should be present at all time
 
     public State state = State.CREATED;
     public Map<String, Player> participants; // maps player IDs to Player Objects - in the future will allow to target actions from players to players
@@ -65,6 +65,7 @@ public class Game {
         for (Player player :participants.values()){
             player.snake = new Snake(itemCoordinates, collectedItems);
         }
+        apples = (int) Math.ceil(this.participants.size() / 2.0f) + 1;
     }
 
     /**
