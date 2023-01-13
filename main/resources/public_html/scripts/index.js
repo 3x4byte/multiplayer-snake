@@ -3,8 +3,6 @@ var username_input;
 var username;
 var game_id_input;
 var game_id;
-var debug_username;
-var debug_game_id;
 var debug_text;
 var start_button;
 var kick_buttons;
@@ -13,8 +11,6 @@ function onLoadIndex(){
     username_input.addEventListener('keyup', (evt) => { if(evt.key === "Enter") configureGame(); });
     game_id_input = document.querySelector(".game_id");
     game_id_input.addEventListener('keyup', (evt) => { if(evt.key === "Enter") joinGame(); });
-    debug_username = document.querySelector(".debug_username");
-    debug_game_id = document.querySelector(".debug_game_id");
     debug_text = document.querySelector(".debug_text");
     start_button = document.querySelector(".start_game");
     updateUsername();
@@ -51,15 +47,15 @@ function configureGame(){
     }
 }
 function username_check(){
-    debug_username.innerText = "";
+    debug_text.innerText = "";
     if(username.length === 0){
-        debug_username.innerText = "enter a username";
+        debug_text.innerText = "enter a username";
         highlightElement(username_input);
         return false;
     }
 
     if(username.length > 10){
-        debug_username.innerText = "username is to long";
+        debug_text.innerText = "username is to long";
         highlightElement(username_input);
         return false;
     }
@@ -68,19 +64,19 @@ function username_check(){
 }
 
 function game_id_check(){
-    debug_game_id.innerText = "";
+    debug_text.innerText = "";
     if(!game_id.startsWith("#")){
-        debug_game_id.innerText = "game id contains no letters";
+        debug_text.innerText = "game id contains no letters";
         highlightElement(game_id_input);
         return false;
     }
     if(isNaN(game_id.substring(1))){
-        debug_game_id.innerText = "game id contains no letters";
+        debug_text.innerText = "game id contains no letters";
         highlightElement(game_id_input);
         return false;
     }
     if(game_id.length < 2){
-        debug_game_id.innerText = "enter a game id";
+        debug_text.innerText = "enter a game id";
         highlightElement(game_id_input);
         return false;
     }
@@ -91,6 +87,8 @@ function handleConfigureGameResponse(msgContent){
     sLobby = msgContent
     index.style.display = "none";
     configure_game.style.display = "contents";
+    lobby.style.display = "none";
+    game.style.display = "none";
 }
 
 
@@ -108,7 +106,6 @@ function joinGame(){
 }
 
 function handleJoinGameResponse(msgContent){
-
     if (msgContent != null){
         sLobby = msgContent
         game_id_label_field.innerText = sLobby.ID;
@@ -122,9 +119,10 @@ function handleJoinGameResponse(msgContent){
 
         }
 
-        // "redirect"
         index.style.display = "none";
+        configure_game.style.display = "none";
         lobby.style.display = "contents";
+        game.style.display = "none";
 
     }
 }
@@ -135,4 +133,22 @@ function highlightElement(element) {
     element.classList.add("highlighted");
     // remove highlight after 3sec
     highlightElement.timer = setTimeout(() => element.classList.remove("highlighted"), 500);
+}
+
+function handleJoinLobbyFailed(msg){
+    switch (msg){
+        case LobbyJoinFailureCodes.FULL: joinFailedMessage("lobby is already full"); break;
+        case LobbyJoinFailureCodes.NOT_EXISTING: joinFailedMessage("lobby does not exist"); break;
+        case LobbyJoinFailureCodes.STARTED: joinFailedMessage("game already started");break;
+    }
+}
+
+function joinFailedMessage(message){
+    debug_text.innerText = message;
+
+    index.style.display = "contents";
+    configure_game.style.display = "none";
+    lobby.style.display = "none";
+    game.style.display = "none";
+    game_over.style.display = "none";
 }

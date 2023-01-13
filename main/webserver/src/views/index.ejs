@@ -5,6 +5,7 @@
     <link rel="stylesheet" href="static/index.css">
     <link rel="stylesheet" href="static/lobby.css">
     <link rel="stylesheet" href="static/game.css">
+    <link rel="stylesheet" href="static/game_over.css">
     <link rel="stylesheet" href="static/style.css">
 
     <script src="scripts/communication.js"></script>
@@ -13,6 +14,7 @@
     <script src="scripts/configure_game.js"></script>
     <script src="scripts/lobby.js"></script>
     <script src="scripts/game.js"></script>
+    <script src="scripts/game_over.js"></script>
     <title>Snake</title>
 
 </head>
@@ -21,16 +23,13 @@
 <div class="index" style="display: contents">
     <div class="container">
         <h1>SNAKE ROYALE</h1>
-        <div class="debug_text"></div>
         <br>
         <input class="username" type="search" placeholder="username" onchange="updateUsername()" required>
         <br>
-        <div class="debug_username"></div>
         <button class="create_game" onclick="configureGame()">create new game</button>
-        <br>
+        <div class="debug_text"></div>
         <input class="game_id" type="search" placeholder="#000" onchange="updateGameId()">
         <br>
-        <div class="debug_game_id"></div>
         <button class="join" onclick="joinGame()">join game</button>
 
     </div>
@@ -46,6 +45,10 @@
 
 <div class="game" style="display: none">
     <%- include('game'); %>
+</div>
+
+<div class="game_over" style="display: none">
+    <%- include('game_over'); %>
 </div>
 
 </body>

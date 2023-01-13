@@ -11,7 +11,6 @@ function startGame(){
 }
 
 function handleLobbyUpdate(messageContent){
-    console.log(messageContent);
 
     let list = document.querySelector(".player_list");
     list.textContent = "";
@@ -71,12 +70,21 @@ function handleStartGameResponse(){
     }
     name_field.innerText = username;
 
+    index.style.display = "none";
+    configure_game.style.display = "none";
     lobby.style.display = "none";
     game.style.display = "contents";
+    game_over.style.display = "none";
+
 }
 
 function handleKickPlayerResponse(){
     debug_text.innerText = "you have been kicked!";
-    lobby.style.display = "none";
+
     index.style.display = "contents";
+    configure_game.style.display = "none";
+    lobby.style.display = "none";
+    game.style.display = "none";
+    game_over.style.display = "none";
+
 }
