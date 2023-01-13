@@ -91,68 +91,49 @@ function drawGrid(ctx, ctx_width){
     ctx.closePath();
 }
 
-/*
-function drawGrid(){
-    tile_size = (width-1)/num_rows;
-    // draw own game field
-    let ctx = canvas.getContext("2d");
-    ctx.beginPath();
-    ctx.strokeStyle = "#00ADB5";
-    // drawing the grid
-    for (let i = 0; i < width; i+=tile_size) {
-        ctx.moveTo(0, i);
-        ctx.lineTo(width, i);
-        ctx.moveTo(i, 0);
-        ctx.lineTo(i, width);
-    }
-    ctx.stroke();
-    ctx.closePath();
-
-    tile_size_enemy = (width_enemies-1)/num_rows
-    // draw Enemy game fields
-    for(let cv of canvas_enemies){
-        ctx = cv.getContext("2d");
-        ctx.beginPath();
-        ctx.strokeStyle = "#00ADB5";
-        // drawing the grid
-        for (let i = 0; i < width_enemies; i+=tile_size_enemy) {
-            ctx.moveTo(0, i);
-            ctx.lineTo(width_enemies, i);
-            ctx.moveTo(i, 0);
-            ctx.lineTo(i, width_enemies);
-        }
-        ctx.stroke();
-        ctx.closePath();
-    }
-}
-*/
-
 function updatePlayers(data){
     // loops all players
-    for(let player of data){
-        if(player !== null) {
+    for(let player of data) {
+        if (player !== null) {
             let id = player.id;
             let snake = player.snake;
+            if (snake.lives > 0) {
 
-            let ctx;
-            if (id === my_id) {
-                ctx = canvas.getContext("2d");
-                ctx.clearRect(0, 0, width, width);
-                drawApples(apples_coordinates, ctx, width);
-                drawSnake(ctx, snake.snakeFields, width);
-                drawGrid(ctx, width);
-            } else {
-                ctx = canvas_enemies[enemy_id.indexOf(id)].getContext("2d");
-                ctx.clearRect(0, 0, width_enemies, width_enemies);
-                drawApples(apples_coordinates, ctx, width_enemies);
-                drawSnake(ctx, snake.snakeFields, width_enemies);
-                drawGrid(ctx, width_enemies);
+                let ctx;
+                if (id === my_id) {
+                    ctx = canvas.getContext("2d");
+                    ctx.clearRect(0, 0, width, width);
+                    drawApples(apples_coordinates, ctx, width);
+                    drawSnake(ctx, snake.snakeFields, width);
+                    drawGrid(ctx, width);
+                } else {
+                    ctx = canvas_enemies[enemy_id.indexOf(id)].getContext("2d");
+                    ctx.clearRect(0, 0, width_enemies, width_enemies);
+                    drawApples(apples_coordinates, ctx, width_enemies);
+                    drawSnake(ctx, snake.snakeFields, width_enemies);
+                    drawGrid(ctx, width_enemies);
+                }
             }
-            updateLives(snake.lives, id);
-            updateCollision(snake.collided, id);
+            else{
+                let size;
+                let pos;
+                if (id === my_id) {
+                    ctx = canvas.getContext("2d");
+                    size = width / 10;
+                    pos = width / 2;
+                }else{
+                    ctx = canvas_enemies[enemy_id.indexOf(id)].getContext("2d");
+                    size = width_enemies/10;
+                    pos = width_enemies / 2;
+                }
+                ctx.font = `${size}pt panton`;
+                ctx.textAlign = "center";
+                ctx.fillStyle = "orange";
+                ctx.fillText("game over", pos, pos);
 
-        }else{
-            // TODO dead player
+            }
+                updateLives(snake.lives, id);
+                updateCollision(snake.collided, id);
         }
     }
 }
