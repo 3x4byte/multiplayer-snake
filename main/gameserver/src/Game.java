@@ -49,6 +49,8 @@ public class Game {
             state = State.RUNNING;
             roundLengthMS = 20000;
             timeTillNextDeathMS = roundLengthMS;
+            collectedItems.clear();
+            itemCoordinates.clear();
 
             // sends next death information to player
             String timeTillNextDeathMessage = new WSMessage(OpCode.NEXT_PLAYER_DEATH, roundLengthMS).jsonify();
