@@ -17,7 +17,7 @@ public class Game {
     public int apples; // the amount of apples that should be present at all time
 
     public State state = State.CREATED;
-    public Map<String, Player> participants; // maps player IDs to Player Objects - in the future will allow to target actions from players to players
+    public Map<String, Player> participants; // maps player IDs to Player Objects
 
     private static final HashSet<Coordinate> fields = new HashSet<>(100);
     static {
@@ -33,10 +33,10 @@ public class Game {
 
     // GAME DATA
     // The Snakes speed determines how long it takes per field
-    public float fastestSnakeSpeed = SNAKE_SPEED; // multipliers may be applied here. The update speed of a lobby always depends on the fastest snake
-    public long roundLengthMS = 20000;
-    private long timeTillNextDeathMS = roundLengthMS;
-    public long lastUpdatedAt = 0;
+    public float fastestSnakeSpeed = SNAKE_SPEED; // todo, if we ever have speed increasing items, multipliers may be applied here. The update speed of a lobby always depends on the fastest snake
+    public long roundLengthMS;
+    private long timeTillNextDeathMS;
+    public long lastUpdatedAt;
     private final Random random = new Random();
 
     /**
@@ -46,18 +46,17 @@ public class Game {
         @Override
         public void run() {
             state = State.RUNNING;
+            lastUpdatedAt = System.currentTimeMillis();
+            roundLengthMS = 20000;
+            timeTillNextDeathMS = roundLengthMS;
             gameloop();
         }
     };
-
 
     enum State {
         CREATED,
         RUNNING,
         STOPPED;
-    }
-
-    Game(){
     }
 
     public void setMembers(Map<String, Player> participants) {
@@ -126,7 +125,7 @@ public class Game {
         }
 
         // update the scores and end the game if its over
-        if(deadPlayers == participants.size()) { //todo add -1  if we want to notify once one man standing
+        if(deadPlayers == participants.size() - 1) { //todo add -1  if we want to notify once one man standing
             this.state = State.STOPPED;
             sendScores();
         }
@@ -152,8 +151,6 @@ public class Game {
 
 
     public void gameloop(){
-        lastUpdatedAt = System.currentTimeMillis();
-
         while (state.equals(State.RUNNING)){
 
             try {
@@ -180,7 +177,7 @@ public class Game {
         }
         fieldCopy.removeAll(itemCoordinates.keySet());
 
-        Map<Coordinate, Item> newApplePositions = new HashMap<>(apples- itemCoordinates.size());
+        Map<Coordinate, Item> newApplePositions = new HashMap<>(apples - itemCoordinates.size());
         Coordinate[] fieldCopyArray = fieldCopy.toArray(new Coordinate[fieldCopy.size()]);
         for (int x = 0; x < apples- itemCoordinates.size(); x++){
             newApplePositions.put(fieldCopyArray[random.nextInt(fieldCopyArray.length)], Item.Apple);
