@@ -17,7 +17,7 @@ public class Game {
     public static final int apples = 2; // the amount of apples that should be present at all time
 
     public State state = State.CREATED;
-    public Map<Integer, Player> participants; // maps player IDs to Player Objects - in the future will allow to target actions from players to players
+    public Map<String, Player> participants; // maps player IDs to Player Objects - in the future will allow to target actions from players to players
 
     private static final HashSet<Coordinate> fields = new HashSet<>(100);
     static {
@@ -59,7 +59,7 @@ public class Game {
     Game(){
     }
 
-    public void setMembers(Map<Integer, Player> participants) {
+    public void setMembers(Map<String, Player> participants) {
         this.participants = participants;
         for (Player player :participants.values()){
             player.snake = new Snake(itemCoordinates, collectedItems);
@@ -83,8 +83,8 @@ public class Game {
         int deadPlayers = 0;
         int shortestLength = Integer.MAX_VALUE;
 
-        Set<Map.Entry<Integer, Player>> entries = participants.entrySet();
-        for (Map.Entry<Integer, Player> entrySet : entries){
+        Set<Map.Entry<String, Player>> entries = participants.entrySet();
+        for (Map.Entry<String, Player> entrySet : entries){
             Player player = entrySet.getValue();
             if (player.snake.lives > 0) {
 
@@ -107,7 +107,7 @@ public class Game {
 
         timeTillNextDeathMS -= now-lastUpdatedAt;
         if (timeTillNextDeathMS <= 0) {
-            for (Map.Entry<Integer, Player> entrySet : entries) {
+            for (Map.Entry<String, Player> entrySet : entries) {
                 Player player = entrySet.getValue();
                 if (player.snake.lives > 0) {
                     player.snake.trimOrDie(shortestLength);
@@ -130,7 +130,7 @@ public class Game {
         WSMessage messagePlayerPositions = new WSMessage(OpCode.PLAYER_POSITIONS, players);
         String playerPositionsAsJson = messagePlayerPositions.jsonify();
         // send the "snakes" data to all players
-        for (Map.Entry<Integer, Player> entrySet : entries){
+        for (Map.Entry<String, Player> entrySet : entries){
             Player player = entrySet.getValue();
 
             if (player.connection.isOpen()) {
@@ -168,7 +168,7 @@ public class Game {
     // to also add buffs / debuffs
     private void spawnApples(){
         HashSet<Coordinate> fieldCopy = new HashSet<>(fields);
-        for (Map.Entry<Integer, Player> entrySet : participants.entrySet()){
+        for (Map.Entry<String, Player> entrySet : participants.entrySet()){
             Player player = entrySet.getValue();
             fieldCopy.removeAll(player.snake.occupiedFields);
         }

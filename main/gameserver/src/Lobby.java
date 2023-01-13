@@ -17,7 +17,7 @@ public class Lobby {
     public Player owner; //  can be used by client but does not have to
 
     @Expose(deserialize = false)
-    public Map<Integer, Player> members = new ConcurrentHashMap<>(); //requires manual sync
+    public Map<String, Player> members = new ConcurrentHashMap<>(); //requires manual sync
 
     @Expose(serialize = false, deserialize = false)
     transient final Object membersRWLock = new Object();

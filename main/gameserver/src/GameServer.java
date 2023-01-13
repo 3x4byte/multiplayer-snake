@@ -217,7 +217,7 @@ public class GameServer {
         Player caller = players.get(message.getSender());
         Lobby lobby = lobbies.get(caller.subscribedToLobbyId);
 
-        if (lobby.owner.id == caller.id) {
+        if (lobby.owner.equals(caller)) {
             for (Player p : lobby.members.values()) {
                 if (p.connection.isOpen()) {
                     //System.out.println("starting game for player + " + p.id);
@@ -247,15 +247,17 @@ public class GameServer {
     }
 
     private void handleKickPlayer(WSMessage message){
-        int playerId = message.getContent(Integer.class);
+        System.out.println("");
+        String playerId = message.getContent(String.class);
         Player owner = players.get(message.getSender());
         Lobby lobby = lobbies.get(owner.subscribedToLobbyId);
-        if (lobby.owner.id == owner.id && owner.id != playerId) {
+        Player kickedPlayer = lobby.members.get(playerId);
+
+        if (lobby.owner.equals(owner) && !owner.equals(kickedPlayer)) {
             lobby.members.remove(playerId);
             sendLobbyUpdate(lobby);
         }
 
-        Player kickedPlayer = lobby.members.get(playerId);
         if (kickedPlayer.connection.isOpen()) {
             kickedPlayer.connection.send(new WSMessage(OpCode.KICK_PLAYER_RESPONSE, null).jsonify());
         }
