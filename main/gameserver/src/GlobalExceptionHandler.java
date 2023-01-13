@@ -5,9 +5,12 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 
 class GlobalExceptionHandler implements Thread.UncaughtExceptionHandler {
     public static final Logger logger = LoggerFactory.getLogger(GlobalExceptionHandler.class);
+    private static  final DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss.SSS");
 
     @Override
     public void uncaughtException(Thread t, Throwable e) {
@@ -16,7 +19,7 @@ class GlobalExceptionHandler implements Thread.UncaughtExceptionHandler {
             BufferedWriter bw = new BufferedWriter(fw);
             PrintWriter out = new PrintWriter(bw))
         {
-            out.println("####################### " + java.time.LocalDate.now() + " #######################");
+            out.println("####################### " + dateFormat.format(System.currentTimeMillis()) + " #######################");
             out.println();
             out.println(e + " at Thread: " + t.getName());
             for (StackTraceElement s : e.getStackTrace()){

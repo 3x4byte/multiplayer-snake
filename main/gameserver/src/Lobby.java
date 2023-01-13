@@ -22,15 +22,17 @@ public class Lobby {
     @Expose(serialize = false, deserialize = false)
     transient final Object membersRWLock = new Object();
     @Expose(serialize = false, deserialize = false)
-    transient Game game;
+    transient Game game = new Game();
 
     Lobby(String id){
         this.ID = id;
     }
 
-    public void initializeGame(){
-        this.game = new Game(members);
+    public void startGame(){
+        game.setMembers(members);
+        game.startGame();
     }
+
 
     public boolean join(Player player){
         synchronized (membersRWLock){

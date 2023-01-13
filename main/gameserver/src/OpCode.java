@@ -17,12 +17,14 @@ enum OpCode implements WSServer.OpCode {
     JOIN_LOBBY_RESPONSE, // sends a lobby
     LEAVE_LOBBY, // nothing
     LEAVE_LOBBY_RESPONSE, // sends a boolean
-    LOBBY_UPDATE, // todo
+    LOBBY_UPDATE, // sends a lobby
     UP, // expects a string
     DOWN, // expects a string
     LEFT, // expects a string
     RIGHT, // expects a string
     PLAYER_POSITIONS, //sends a player objects list
-    ITEM_POSITIONS // sends a list of coordinates
+    ITEM_POSITIONS, // sends a list of coordinates
+    KICK_PLAYER, // expects a string
+    KICK_PLAYER_RESPONSE // nothing
     ;
 }

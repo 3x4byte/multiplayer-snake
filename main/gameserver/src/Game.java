@@ -16,8 +16,8 @@ public class Game {
 
     public static final int apples = 2; // the amount of apples that should be present at all time
 
-    public State state = State.RUNNING;
-    public final Map<Integer, Player> participants; // maps player IDs to Player Objects - in the future will allow to target actions from players to players
+    public State state = State.CREATED;
+    public Map<Integer, Player> participants; // maps player IDs to Player Objects - in the future will allow to target actions from players to players
 
     private static final HashSet<Coordinate> fields = new HashSet<>(100);
     static {
@@ -51,15 +51,23 @@ public class Game {
 
 
     enum State {
+        CREATED,
         RUNNING,
         STOPPED;
     }
 
-    Game(Map<Integer, Player> participants){
+    Game(){
+    }
+
+    public void setMembers(Map<Integer, Player> participants) {
         this.participants = participants;
         for (Player player :participants.values()){
             player.snake = new Snake(itemCoordinates, collectedItems);
         }
+    }
+
+    public void startGame(){
+        this.state = State.RUNNING;
     }
 
     /**
@@ -138,13 +146,8 @@ public class Game {
 
         while (state.equals(State.RUNNING)){
 
-            if (random.nextInt(100) < 15) {
-                throw new UnsupportedOperationException();
-            }
-
             try {
                 Thread.sleep((long) TICK_DURATION);
-                //System.out.println("updaing lobby");
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }

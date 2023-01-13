@@ -63,6 +63,9 @@ public class GameServer {
                     return handleSetName(message);
                 case START_GAME:
                     return handleStartGame(message);
+                case KICK_PLAYER:
+                    handleKickPlayer(message);
+                    break;
                 //intentional fall throughs
                 case UP:
                 case DOWN:
@@ -73,6 +76,7 @@ public class GameServer {
                     //System.out.println("COULD NOT IDENTIFY DATA: " + message);
                     return Optional.empty();
             }
+            return Optional.empty();
         }
     }
 
@@ -137,7 +141,7 @@ public class GameServer {
         boolean leftLobbySuccess = lobby.leave(player);
 
         // if the player left the lobby and the game is not running - notify users to update their lobby screen
-        if (leftLobbySuccess && lobby.game == null){
+        if (leftLobbySuccess && !lobby.game.state.equals(Game.State.RUNNING)) {
             WSMessage updateMessage = new WSMessage(OpCode.LOBBY_UPDATE, lobby);
             for (Player p: lobby.members.values()){
                 if (p.connection.isOpen()){
@@ -220,7 +224,7 @@ public class GameServer {
                     p.connection.send(new WSMessage(OpCode.START_GAME_RESPONSE).jsonify());
                 }
             }
-            lobby.initializeGame();
+            lobby.startGame();
             //executorService.submit(lobby.game.RunGame);
             new Thread(lobby.game.RunGame).start();
 
@@ -239,6 +243,21 @@ public class GameServer {
                 //System.out.println("sending ");
                 p.connection.send(message.jsonify()); //todo entscheiden ob man alle daten an alle sendet oder immer nur neue (würde auch gehen)
             }
+        }
+    }
+
+    private void handleKickPlayer(WSMessage message){
+        int playerId = message.getContent(Integer.class);
+        Player owner = players.get(message.getSender());
+        Lobby lobby = lobbies.get(owner.subscribedToLobbyId);
+        if (lobby.owner.id == owner.id && owner.id != playerId) {
+            lobby.members.remove(playerId);
+            sendLobbyUpdate(lobby);
+        }
+
+        Player kickedPlayer = lobby.members.get(playerId);
+        if (kickedPlayer.connection.isOpen()) {
+            kickedPlayer.connection.send(new WSMessage(OpCode.KICK_PLAYER_RESPONSE, null).jsonify());
         }
     }
 
