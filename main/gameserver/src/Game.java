@@ -101,7 +101,9 @@ public class Game {
         if (timeTillNextDeathMS <= 0) {
             for (Map.Entry<Integer, Player> entrySet : entries) {
                 Player player = entrySet.getValue();
-                player.snake.trimOrDie(shortestLength);
+                if (player.snake.lives > 0) {
+                    player.snake.trimOrDie(shortestLength);
+                }
             }
             lastUpdatedAt = now;
             timeTillNextDeathMS = roundLengthMS;

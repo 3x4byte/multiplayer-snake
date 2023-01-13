@@ -9,7 +9,6 @@ import java.io.PrintWriter;
 class GlobalExceptionHandler implements Thread.UncaughtExceptionHandler {
     public static final Logger logger = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
-
     @Override
     public void uncaughtException(Thread t, Throwable e) {
         logger.error("Uncaught exception in thread " + t.getName(), e);

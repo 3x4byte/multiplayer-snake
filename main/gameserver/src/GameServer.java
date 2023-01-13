@@ -229,7 +229,7 @@ public class GameServer {
      */
     private synchronized void sendLobbyUpdate(Lobby lobby){
         //System.out.println("in send lobby");
-        WSMessage message = new WSMessage(OpCode.LOBBY_UPDATE, lobby.members.values());
+        WSMessage message = new WSMessage(OpCode.LOBBY_UPDATE, lobby);
         for (Player p : lobby.members.values()){
             if (p.connection.isOpen()){
                 //System.out.println("sending ");
