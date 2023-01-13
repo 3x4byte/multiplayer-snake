@@ -51,6 +51,7 @@ public class Game {
             timeTillNextDeathMS = roundLengthMS;
             collectedItems.clear();
             itemCoordinates.clear();
+            apples = (int) Math.ceil(participants.size() / 2.0f) + 1;
 
             // sends next death information to player
             String timeTillNextDeathMessage = new WSMessage(OpCode.NEXT_PLAYER_DEATH, roundLengthMS).jsonify();
@@ -75,7 +76,6 @@ public class Game {
         for (Player player :participants.values()){
             player.snake = new Snake(itemCoordinates, collectedItems);
         }
-        apples = (int) Math.ceil(this.participants.size() / 2.0f) + 1;
     }
 
     /**
