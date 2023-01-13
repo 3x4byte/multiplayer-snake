@@ -65,6 +65,8 @@ public class GameServer {
                 case KICK_PLAYER:
                     handleKickPlayer(message);
                     break;
+                case PLAY_AGAIN:
+                    return handlePlayAgain(message);
                 //intentional fall throughs
                 case UP:
                 case DOWN:
@@ -230,7 +232,7 @@ public class GameServer {
 
         if (lobby.owner.equals(caller)) {
             // sends game go and the time interval for player deaths
-            String startMessage = new WSMessage(OpCode.START_GAME_RESPONSE, lobby.game.roundLengthMS).jsonify();
+            String startMessage = new WSMessage(OpCode.START_GAME_RESPONSE).jsonify();
             for (Player p : lobby.members.values()) {
                 if (p.connection.isOpen()) {
                     //System.out.println("starting game for player + " + p.id);
@@ -238,7 +240,7 @@ public class GameServer {
                 }
             }
 
-            lobby.startGame();
+            lobby.prepareGame();
             //executorService.submit(lobby.game.RunGame);
             new Thread(lobby.game.RunGame).start();
 
@@ -275,4 +277,19 @@ public class GameServer {
         }
     }
 
+    private Optional<WSMessage> handlePlayAgain(WSMessage message){
+        Player player = players.get(message.getSender());
+        Lobby lobby = lobbies.get(player.subscribedToLobbyId);
+        Lobby.LobbyJoinFailureCodes code = lobby.replay();
+        OpCode opCode;
+
+        if (player.equals(lobby.owner)){
+            opCode = OpCode.CONFIGURE_LOBBY_RESPONSE;
+        } else if (code.equals(Lobby.LobbyJoinFailureCodes.SUCCESS)){
+            opCode = OpCode.JOIN_LOBBY_RESPONSE;
+        } else {
+            return Optional.of(new WSMessage(OpCode.JOIN_LOBBY_FAILED, code));
+        }
+        return Optional.of(new WSMessage(opCode, lobby));
+    }
 }

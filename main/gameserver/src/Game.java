@@ -37,7 +37,7 @@ public class Game {
     public long roundLengthMS = 20000;
     private long timeTillNextDeathMS = roundLengthMS;
     public long lastUpdatedAt = 0;
-    private Random random = new Random();
+    private final Random random = new Random();
 
     /**
      * Will be called by a worker Thread of the GameServer to progress the game
@@ -45,6 +45,7 @@ public class Game {
     public Runnable RunGame = new Runnable() {
         @Override
         public void run() {
+            state = State.RUNNING;
             gameloop();
         }
     };
@@ -66,14 +67,10 @@ public class Game {
         }
     }
 
-    public void startGame(){
-        this.state = State.RUNNING;
-    }
-
     /**
      * Progress the lobby state by one tick
-     * Holds the entire Games logic. After the current GameState is
-     * determined updates all clients.
+     * Holds the entire Games logic. And determines the GameState for this tick.
+     * Once necessary information has been computed the users are updated accordingly.
      *
      * all player state updates are handles as essentially round trip data - the players game is not extrapolated but updates only on websocket msg.
      */
@@ -107,17 +104,28 @@ public class Game {
 
         timeTillNextDeathMS -= now-lastUpdatedAt;
         if (timeTillNextDeathMS <= 0) {
+            // reset
+            lastUpdatedAt = now;
+            timeTillNextDeathMS = roundLengthMS;
+
+            // prepare msg
+            WSMessage message = new WSMessage(OpCode.NEXT_PLAYER_DEATH, timeTillNextDeathMS);
+            String nextPlayerDeathMessge = message.jsonify();
+
+            // subtract length and send next "kill" duration
             for (Map.Entry<String, Player> entrySet : entries) {
                 Player player = entrySet.getValue();
                 if (player.snake.isAlive()) {
                     player.snake.trimOrDie(shortestLength);
+                    if (player.connection.isOpen()) {
+                        player.connection.send(nextPlayerDeathMessge);
+                    }
                 }
             }
-            lastUpdatedAt = now;
-            timeTillNextDeathMS = roundLengthMS;
         }
 
-        if(deadPlayers == participants.size()) {
+        // update the scores and end the game if its over
+        if(deadPlayers == participants.size()) { //todo add -1  if we want to notify once one man standing
             this.state = State.STOPPED;
             sendScores();
         }
@@ -135,12 +143,12 @@ public class Game {
             Player player = entrySet.getValue();
 
             if (player.connection.isOpen()) {
-                //System.out.println("apples: " + applePositionsAsJson);
                 player.connection.send(applePositionsAsJson);
                 player.connection.send(playerPositionsAsJson); // applePositions have to be sent first (UI)
             }
         }
     }
+
 
     public void gameloop(){
         lastUpdatedAt = System.currentTimeMillis();
@@ -155,18 +163,14 @@ public class Game {
             progress(System.currentTimeMillis());
             gameloop();
         }
-
-        /* todo consider sending players back to the lobby
-        for (Player p: participants.values()){
-            if (p.connection.isOpen()) {
-                p.connection.send();
-            }
-        }
-         */
     }
 
-    // puts apples at free fields but can be used in the future
-    // to also add buffs / debuffs
+
+    /**
+     * spawns apples on free fields so there are at all times
+     * {@link #apples} times apples on the field
+     * this method may also be used to spawn different items
+     */
     private void spawnApples(){
         HashSet<Coordinate> fieldCopy = new HashSet<>(fields);
         for (Map.Entry<String, Player> entrySet : participants.entrySet()){
@@ -181,15 +185,21 @@ public class Game {
             newApplePositions.put(fieldCopyArray[random.nextInt(fieldCopyArray.length)], Item.Apple);
         }
 
-        //System.out.println("ADDING new apples: " + newApplePositions);
         itemCoordinates.putAll(newApplePositions);
     }
 
+    /**
+     * Each player tracks the items he collected, after a player update cycle these items are removed from the pool
+     */
     private void removeCollectedItems(){
         collectedItems.forEach(itemCoordinates::remove);
         participants.values().forEach(p -> p.snake.collectedItems.clear());
     }
 
+    /**
+     * Sends the scores to the users as a list of Player Objects sorted by the time
+     * they "died" in descending order -> the last one to die is the first player in the list
+     */
     private void sendScores(){
         List<Player> players = new ArrayList<>(participants.values());
         players.sort(new ScoreComparator().reversed());

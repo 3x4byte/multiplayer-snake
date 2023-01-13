@@ -28,9 +28,8 @@ public class Lobby {
         this.ID = id;
     }
 
-    public void startGame(){
+    public void prepareGame(){
         game.setMembers(members);
-        game.startGame();
     }
 
 
@@ -48,6 +47,13 @@ public class Lobby {
                 return LobbyJoinFailureCodes.FULL;
             }
         }
+    }
+
+    public LobbyJoinFailureCodes replay(){
+        if (game.state.equals(Game.State.RUNNING)){
+            return LobbyJoinFailureCodes.STARTED;
+        }
+        return LobbyJoinFailureCodes.SUCCESS;
     }
 
     public boolean leave(Player player){
