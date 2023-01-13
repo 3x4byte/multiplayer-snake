@@ -3,6 +3,7 @@ var index;
 var configure_game;
 var lobby;
 var game;
+var game_over;
 
 var sLobby;
 
@@ -14,6 +15,7 @@ function windowLoaded(){
     configure_game = document.querySelector(".configure_game");
     lobby = document.querySelector(".lobby");
     game = document.querySelector(".game");
+    game_over = document.querySelector(".game_over");
 
     onLoadIndex();
     onLoadConfigureGame();

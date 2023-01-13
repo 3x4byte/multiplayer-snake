@@ -26,9 +26,12 @@ function createLobby(){
 
 function handleCreateLobbyResponse(msgContent){
     sLobby = msgContent;
+
+    index.style.display = "none";
     configure_game.style.display = "none";
     lobby.style.display = "contents";
-
+    game.style.display = "none";
+    game_over.style.display = "none";
     // displaying lobby id
     game_id_label_field.innerText = msgContent.ID;
 }

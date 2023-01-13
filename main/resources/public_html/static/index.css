@@ -1,19 +1,19 @@
 .username{
     text-align: center;
     height: 25pt;
+    margin-bottom: 10pt;
 }
 
-.debug_username, .debug_game_id, .debug_text{
+.debug_text{
     min-height: 14pt;
     color: orange;
     font-size: 10pt;
+    margin: 15pt 0;
 }
 
 .game_id{
     text-align: center;
     height: 20pt;
+    margin-bottom: 10pt;
 }
 
-.create_game{
-    margin-bottom: 5vh;
-}

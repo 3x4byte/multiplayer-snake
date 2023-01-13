@@ -242,6 +242,7 @@ function drawSnake(ctx, positions, width){
 
 }
 
+
 function keyInput(evt){
     // whitelist of keys to be sent
     let key_filter = ['w', 'a', 's', 'd', 'W', 'A', 'S', 'D', "ArrowUp", "ArrowLeft", "ArrowDown", "ArrowRight"];
@@ -289,6 +290,7 @@ function handleMessage(websocketMessage){
         case OpCode.CONFIGURE_LOBBY_RESPONSE: handleConfigureGameResponse(message.content); break;
         case OpCode.CREATE_LOBBY_RESPONSE: handleCreateLobbyResponse(message.content); break;
         case OpCode.JOIN_LOBBY_RESPONSE: handleJoinGameResponse(message.content); break;
+        case OpCode.JOIN_LOBBY_FAILED : handleJoinLobbyFailed(message.content); break;
         case OpCode.START_GAME_RESPONSE: handleStartGameResponse(); break;
         case OpCode.LOBBY_UPDATE: handleLobbyUpdate(message.content); break;
         case OpCode.CONNECTION_RESPONSE: handleConnectionResponse(message.content); break;
