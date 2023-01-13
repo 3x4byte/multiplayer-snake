@@ -1,14 +1,18 @@
+var owner_id;
 var username_input;
 var username;
 var game_id_input;
 var game_id;
 var debug_username;
 var debug_game_id;
+var start_button;
+var kick_buttons;
 function onLoadIndex(){
     username_input = document.querySelector(".username");
     game_id_input = document.querySelector(".game_id");
     debug_username = document.querySelector(".debug_username");
     debug_game_id = document.querySelector(".debug_game_id");
+    start_button = document.querySelector(".start_game");
     updateUsername();
     updateGameId();
 }
@@ -100,18 +104,24 @@ function joinGame(){
 }
 
 function handleJoinGameResponse(msgContent){
+
     if (msgContent != null){
         sLobby = msgContent
         game_id_label_field.innerText = sLobby.ID;
+        kick_buttons = document.querySelectorAll(".cross");
+        owner_id = msgContent.owner.id;
+        if(owner_id !== my_id){
+            for (let button of kick_buttons) {
+                button.style.display = "none";
+            }
+            start_button.style.display = "none";
 
-        let startBtn = document.querySelector(".start_game");
-        startBtn.remove();
+        }
 
         // "redirect"
         index.style.display = "none";
         lobby.style.display = "contents";
 
-        lobby.getElementById()
     }
 }
 

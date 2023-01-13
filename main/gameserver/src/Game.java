@@ -136,10 +136,6 @@ public class Game {
 
         while (state.equals(State.RUNNING)){
 
-            if (random.nextInt(100) < 15) {
-                throw new UnsupportedOperationException();
-            }
-
             try {
                 Thread.sleep((long) TICK_DURATION);
                 //System.out.println("updaing lobby");

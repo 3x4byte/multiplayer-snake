@@ -11,6 +11,7 @@ function startGame(){
 }
 
 function handleLobbyUpdate(messageContent){
+
     let list = document.querySelector(".player_list");
     list.textContent = "";
     enemy_names = [];
@@ -25,6 +26,9 @@ function handleLobbyUpdate(messageContent){
         cross.classList.add("cross");
         cross.id = player.id;
         cross.src = "../images/cross.png";
+        if(my_id !== owner_id){
+            cross.style.display = "none";
+        }
         cross.onmouseover = (evt) => { evt.srcElement.src = "../images/cross_hovered.png"; };
         cross.onmouseout = (evt) => { evt.srcElement.src = "../images/cross.png"; };
         cross.onclick = kick_player;
@@ -37,6 +41,7 @@ function handleLobbyUpdate(messageContent){
     }
     adjustPlayerList();
 }
+
 
 function kick_player(msg){
     socket.send(new Message(OpCode.KICK_PLAYER, msg.srcElement.id).toJson());
