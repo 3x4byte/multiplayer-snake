@@ -34,7 +34,7 @@ public class Game {
     // GAME DATA
     // The Snakes speed determines how long it takes per field
     public float fastestSnakeSpeed = SNAKE_SPEED; // multipliers may be applied here. The update speed of a lobby always depends on the fastest snake
-    private long roundLengthMS = 20000;
+    public long roundLengthMS = 20000;
     private long timeTillNextDeathMS = roundLengthMS;
     public long lastUpdatedAt = 0;
     private Random random = new Random();
@@ -86,7 +86,7 @@ public class Game {
         Set<Map.Entry<String, Player>> entries = participants.entrySet();
         for (Map.Entry<String, Player> entrySet : entries){
             Player player = entrySet.getValue();
-            if (player.snake.lives > 0) {
+            if (player.snake.isAlive()) {
 
                 if (player.snake.collided) {
                     player.snake.snakeToStartPosition();
@@ -109,7 +109,7 @@ public class Game {
         if (timeTillNextDeathMS <= 0) {
             for (Map.Entry<String, Player> entrySet : entries) {
                 Player player = entrySet.getValue();
-                if (player.snake.lives > 0) {
+                if (player.snake.isAlive()) {
                     player.snake.trimOrDie(shortestLength);
                 }
             }
@@ -119,6 +119,7 @@ public class Game {
 
         if(deadPlayers == participants.size()) {
             this.state = State.STOPPED;
+            sendScores();
         }
 
         removeCollectedItems();
@@ -187,6 +188,29 @@ public class Game {
     private void removeCollectedItems(){
         collectedItems.forEach(itemCoordinates::remove);
         participants.values().forEach(p -> p.snake.collectedItems.clear());
+    }
+
+    private void sendScores(){
+        List<Player> players = new ArrayList<>(participants.values());
+        players.sort(new ScoreComparator().reversed());
+        WSMessage stats = new WSMessage(OpCode.GAME_STOPPED, players);
+        String scoreMessage = stats.jsonify();
+        for (Player p : players){
+            if (p.connection.isOpen()){
+                p.connection.send(scoreMessage);
+            }
+        }
+    }
+
+    /**
+     * Sorts players by the time they died in ascending Order
+     */
+    public static class ScoreComparator implements Comparator<Player> {
+
+        @Override
+        public int compare(Player o1, Player o2) {
+            return Long.compare(o1.snake.diedAt, o2.snake.diedAt);
+        }
     }
 
 }

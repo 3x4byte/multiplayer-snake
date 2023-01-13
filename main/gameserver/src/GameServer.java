@@ -146,12 +146,7 @@ public class GameServer {
 
         // if the player left the lobby and the game is not running - notify users to update their lobby screen
         if (leftLobbySuccess && !lobby.game.state.equals(Game.State.RUNNING)) {
-            WSMessage updateMessage = new WSMessage(OpCode.LOBBY_UPDATE, lobby);
-            for (Player p: lobby.members.values()){
-                if (p.connection.isOpen()){
-                    p.connection.send(updateMessage.jsonify());
-                }
-            }
+            sendLobbyUpdate(lobby);
         }
 
         if (lobby.members.size() == 0) {
@@ -219,7 +214,13 @@ public class GameServer {
     }
 
     public Optional<WSMessage> handleSetName(WSMessage message){
-        players.get(message.getSender()).name = message.getContent(String.class);
+        String name = message.getContent(String.class);
+        Player player = players.get(message.getSender());
+        if (name.length() > 10 || name.length() == 0) {
+            player.name = "NICE TRY:)";
+        } else {
+            player.name = name;
+        }
         return Optional.empty();
     }
 
@@ -228,10 +229,12 @@ public class GameServer {
         Lobby lobby = lobbies.get(caller.subscribedToLobbyId);
 
         if (lobby.owner.equals(caller)) {
+            // sends game go and the time interval for player deaths
+            String startMessage = new WSMessage(OpCode.START_GAME_RESPONSE, lobby.game.roundLengthMS).jsonify();
             for (Player p : lobby.members.values()) {
                 if (p.connection.isOpen()) {
                     //System.out.println("starting game for player + " + p.id);
-                    p.connection.send(new WSMessage(OpCode.START_GAME_RESPONSE).jsonify());
+                    p.connection.send(startMessage);
                 }
             }
 
@@ -247,18 +250,16 @@ public class GameServer {
      * Sends the current lobby status to all players - used to update lobby screen!
      */
     private synchronized void sendLobbyUpdate(Lobby lobby){
-        //System.out.println("in send lobby");
         WSMessage message = new WSMessage(OpCode.LOBBY_UPDATE, lobby);
+        String lobbyUpdate = message.jsonify();
         for (Player p : lobby.members.values()){
             if (p.connection.isOpen()){
-                //System.out.println("sending ");
-                p.connection.send(message.jsonify()); //todo entscheiden ob man alle daten an alle sendet oder immer nur neue (würde auch gehen)
+                p.connection.send(lobbyUpdate); //todo entscheiden ob man alle daten an alle sendet oder immer nur neue (würde auch gehen)
             }
         }
     }
 
     private void handleKickPlayer(WSMessage message){
-        System.out.println("");
         String playerId = message.getContent(String.class);
         Player owner = players.get(message.getSender());
         Lobby lobby = lobbies.get(owner.subscribedToLobbyId);
