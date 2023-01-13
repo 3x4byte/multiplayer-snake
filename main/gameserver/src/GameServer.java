@@ -233,10 +233,12 @@ public class GameServer {
         if (lobby.owner.equals(caller)) {
             // sends game go and the time interval for player deaths
             String startMessage = new WSMessage(OpCode.START_GAME_RESPONSE).jsonify();
+            String timeTillNextDeathMessage = new WSMessage(OpCode.NEXT_PLAYER_DEATH, lobby.game.roundLengthMS).jsonify();
             for (Player p : lobby.members.values()) {
                 if (p.connection.isOpen()) {
                     //System.out.println("starting game for player + " + p.id);
                     p.connection.send(startMessage);
+                    p.connection.send(timeTillNextDeathMessage);
                 }
             }
 
