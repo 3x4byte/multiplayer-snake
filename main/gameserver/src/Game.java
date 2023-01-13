@@ -34,9 +34,9 @@ public class Game {
     // GAME DATA
     // The Snakes speed determines how long it takes per field
     public float fastestSnakeSpeed = SNAKE_SPEED; // todo, if we ever have speed increasing items, multipliers may be applied here. The update speed of a lobby always depends on the fastest snake
-    public long roundLengthMS;
+    private long roundLengthMS;
     private long timeTillNextDeathMS;
-    public long lastUpdatedAt;
+    private long lastUpdatedAt;
     private final Random random = new Random();
 
     /**
@@ -45,10 +45,19 @@ public class Game {
     public Runnable RunGame = new Runnable() {
         @Override
         public void run() {
+            // resets game state
             state = State.RUNNING;
-            lastUpdatedAt = System.currentTimeMillis();
             roundLengthMS = 20000;
             timeTillNextDeathMS = roundLengthMS;
+
+            // sends next death information to player
+            String timeTillNextDeathMessage = new WSMessage(OpCode.NEXT_PLAYER_DEATH, roundLengthMS).jsonify();
+            for (Player p : participants.values()){
+                if (p.connection.isOpen()){
+                    p.connection.send(timeTillNextDeathMessage);
+                }
+            }
+
             gameloop();
         }
     };
@@ -125,7 +134,7 @@ public class Game {
         }
 
         // update the scores and end the game if its over
-        if(deadPlayers == participants.size() - 1) { //todo add -1  if we want to notify once one man standing
+        if(deadPlayers == participants.size()) { //todo add -1  if we want to notify once one man standing
             this.state = State.STOPPED;
             sendScores();
         }
@@ -152,6 +161,7 @@ public class Game {
 
     public void gameloop(){
         while (state.equals(State.RUNNING)){
+            lastUpdatedAt = System.currentTimeMillis();
 
             try {
                 Thread.sleep((long) TICK_DURATION);
@@ -159,7 +169,6 @@ public class Game {
                 throw new RuntimeException(e);
             }
             progress(System.currentTimeMillis());
-            gameloop();
         }
     }
 

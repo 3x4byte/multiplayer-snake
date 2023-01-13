@@ -265,6 +265,7 @@ function handleGameStoppedResponse(msg){
 }
 
 function handleNextPlayerDeath(msg){
+    console.log(msg)
     startTimer((parseInt(msg)/1000));
 }
 
