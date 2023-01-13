@@ -16,10 +16,13 @@ class GlobalExceptionHandler implements Thread.UncaughtExceptionHandler {
             BufferedWriter bw = new BufferedWriter(fw);
             PrintWriter out = new PrintWriter(bw))
         {
+            out.println("####################### " + java.time.LocalDate.now() + " #######################");
+            out.println();
             out.println(e + " at Thread: " + t.getName());
             for (StackTraceElement s : e.getStackTrace()){
                 out.println(s);
             }
+            out.println();
             //more code
         } catch (IOException ae) {
             //exception handling left as an exercise for the reader
