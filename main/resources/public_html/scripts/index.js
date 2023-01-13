@@ -5,13 +5,17 @@ var game_id_input;
 var game_id;
 var debug_username;
 var debug_game_id;
+var debug_text;
 var start_button;
 var kick_buttons;
 function onLoadIndex(){
     username_input = document.querySelector(".username");
+    username_input.addEventListener('keyup', (evt) => { if(evt.key === "Enter") configureGame(); });
     game_id_input = document.querySelector(".game_id");
+    game_id_input.addEventListener('keyup', (evt) => { if(evt.key === "Enter") joinGame(); });
     debug_username = document.querySelector(".debug_username");
     debug_game_id = document.querySelector(".debug_game_id");
+    debug_text = document.querySelector(".debug_text");
     start_button = document.querySelector(".start_game");
     updateUsername();
     updateGameId();

@@ -3,7 +3,7 @@
     height: 25pt;
 }
 
-.debug_username, .debug_game_id{
+.debug_username, .debug_game_id, .debug_text{
     min-height: 14pt;
     color: orange;
     font-size: 10pt;

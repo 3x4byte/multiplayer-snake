@@ -311,6 +311,7 @@ function handleMessage(websocketMessage){
         case OpCode.START_GAME_RESPONSE: handleStartGameResponse(); break;
         case OpCode.LOBBY_UPDATE: handleLobbyUpdate(message.content); break;
         case OpCode.CONNECTION_RESPONSE: handleConnectionResponse(message.content); break;
+        case OpCode.KICK_PLAYER_RESPONSE: handleKickPlayerResponse(); break;
     }
 }
 
