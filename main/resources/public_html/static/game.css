@@ -25,21 +25,24 @@
     width: calc(4 * (13.75% + 1% + 1vw + 3pt));
 }
 
-.info-bar{
+.own-info-bar{
     margin: 0 auto;
     width: 40vw;
     font-size: 2.5vw;
     text-align: left;
-    padding-left: 6vw;
+    padding-left: 6.5vw;
+}
+
+.info-bar{
+    margin: 0 auto;
+    width: 100%;
+    font-size: 0.75vw;
+    text-align: left;
+    padding-left: 0.5vw;
 }
 
 .player{
     margin-top: 1%;
-}
-
-.player > .info-bar{
-    font-size: 1vw;
-    width: 100%;
 }
 
 .heart_img{
@@ -53,11 +56,11 @@
 
 .player .heart_img{
     margin-right: 1pt;
-    width: 0.75vw;
+    width: 0.5vw;
     height: auto;
 }
 
 .timer{
-    margin-right: 6vw;
+    margin-right: 6.5vw;
     float: right;
 }
