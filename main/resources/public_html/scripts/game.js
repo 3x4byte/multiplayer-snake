@@ -242,6 +242,22 @@ function drawSnake(ctx, positions, width){
 
 }
 
+function handleGameStoppedResponse(msg){
+    let ol = document.querySelector(".leaderboard_players");
+    ol.textContent = "";
+    for(let player of msg){
+        let li = document.createElement("li");
+        let text = document.createTextNode(player.name);
+        li.appendChild(text);
+        ol.appendChild(li);
+    }
+    index.style.display = "none";
+    configure_game.style.display = "none";
+    lobby.style.display = "none";
+    game.style.display = "contents";
+    game_over.style.display = "flex";
+
+}
 
 function keyInput(evt){
     // whitelist of keys to be sent
@@ -280,9 +296,9 @@ function keyInput(evt){
 }
 
 function handleMessage(websocketMessage){
-    console.log("Incoming message: " + websocketMessage.data); //only delete after debugging please
+    //console.log("Incoming message: " + websocketMessage.data); //only delete after debugging please
     let message = Message.fromJson(websocketMessage.data);
-    console.log("Parsed message: ", message); //only delete after debugging please
+    //console.log("Parsed message: ", message); //only delete after debugging please
 
     switch (message.opCode){
         case OpCode.PLAYER_POSITIONS: updatePlayers(message.content); break;
@@ -295,6 +311,7 @@ function handleMessage(websocketMessage){
         case OpCode.LOBBY_UPDATE: handleLobbyUpdate(message.content); break;
         case OpCode.CONNECTION_RESPONSE: handleConnectionResponse(message.content); break;
         case OpCode.KICK_PLAYER_RESPONSE: handleKickPlayerResponse(); break;
+        case OpCode.GAME_STOPPED: handleGameStoppedResponse(message.content); break;
     }
 }
 

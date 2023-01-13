@@ -89,6 +89,7 @@ function handleConfigureGameResponse(msgContent){
     configure_game.style.display = "contents";
     lobby.style.display = "none";
     game.style.display = "none";
+    game_over.style.display = "none";
 }
 
 
@@ -123,6 +124,7 @@ function handleJoinGameResponse(msgContent){
         configure_game.style.display = "none";
         lobby.style.display = "contents";
         game.style.display = "none";
+        game_over.style.display = "none";
 
     }
 }

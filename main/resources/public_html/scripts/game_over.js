@@ -1,7 +1,3 @@
 function play_again(){
-    socket.send(new Message(OpCode.PLAY_AGAIN).toJson);
-}
-
-function handlePlayAgainResponse(){
-    // TODO
+    socket.send(new Message(OpCode.PLAY_AGAIN).toJson());
 }
