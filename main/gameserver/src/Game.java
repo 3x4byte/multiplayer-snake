@@ -73,10 +73,17 @@ public class Game {
         STOPPED;
     }
 
+    private final Snake.SnakeDiedListener snakeDeathListener = new Snake.SnakeDiedListener() {
+        @Override
+        public void onSnakeDeath() {
+            deadSnakes += 1;
+        }
+    };
+
     public void setMembers(Map<String, Player> participants) {
         this.participants = participants;
         for (Player player :participants.values()){
-            player.snake = new Snake(itemCoordinates, collectedItems);
+            player.snake = new Snake(itemCoordinates, collectedItems, snakeDeathListener);
             player.snake.setAcceptMovementData(true);
         }
     }
@@ -97,22 +104,15 @@ public class Game {
         for (Map.Entry<String, Player> entrySet : entries){
             Player player = entrySet.getValue();
             if (player.snake.isAlive()) {
-
+                player.snake.move();
                 if (player.snake.collided) {
                     player.snake.snakeToStartPosition();
                     player.snake.snakeMovementDataReset();
-                    if (!player.snake.isAlive()){
-                        player.snake.setAcceptMovementData(false);
-                        deadSnakes += 1;
-                    }
-                } else {
-                    player.snake.move();
-                    int length = player.snake.occupiedFields.size();
-                    if (length < shortestLength){
-                        shortestLength = length;
-                    }
                 }
-
+                int length = player.snake.size();
+                if (length < shortestLength){
+                    shortestLength = length;
+                }
                 players[i++] = player;
             }
         }

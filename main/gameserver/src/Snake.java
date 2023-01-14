@@ -34,11 +34,14 @@ public class Snake {
     public transient boolean doesAcceptMovementData = false;
     @Expose(serialize = false, deserialize = false)
     public transient long diedAt = 0;
+    @Expose(serialize = false, deserialize = false)
+    private final transient SnakeDiedListener listener;
 
 
-    Snake(Map<Coordinate, Item> itemPositions, Set<Coordinate> collectedItems){
+    Snake(Map<Coordinate, Item> itemPositions, Set<Coordinate> collectedItems, SnakeDiedListener listener){
         this.itemPositions = itemPositions;
         this.collectedItems = collectedItems;
+        this.listener = listener;
         snakeToStartPosition();
         snakeMovementDataReset();
     }
@@ -202,7 +205,7 @@ public class Snake {
 
     public void trimOrDie(int size){
         int cutoffSize = size - INITIAL_LENGTH;
-        if (size == occupiedFields.size()){
+        if (size <= size()){
             subtractLive();
         } else {
             for (int c = 0; c < cutoffSize; c++) {
@@ -220,11 +223,18 @@ public class Snake {
             this.lives -= 1;
             if (!this.isAlive()) {
                 this.diedAt = System.currentTimeMillis();
+                setAcceptMovementData(false);
+                listener.onSnakeDeath();
             }
         }
     }
 
     public boolean isAlive(){
         return this.lives > 0;
+    }
+
+    @FunctionalInterface
+    interface SnakeDiedListener{
+        public void onSnakeDeath();
     }
 }
