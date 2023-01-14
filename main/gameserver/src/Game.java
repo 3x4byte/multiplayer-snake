@@ -34,6 +34,7 @@ public class Game {
     // GAME DATA
     // The Snakes speed determines how long it takes per field
     public float fastestSnakeSpeed = SNAKE_SPEED; // todo, if we ever have speed increasing items, multipliers may be applied here. The update speed of a lobby always depends on the fastest snake
+    private int deadSnakes;
     private long roundLengthMS;
     private long timeTillNextDeathMS;
     private long lastUpdatedAt;
@@ -47,6 +48,7 @@ public class Game {
         public void run() {
             // resets game state
             state = State.RUNNING;
+            deadSnakes = 0;
             roundLengthMS = 20000;
             timeTillNextDeathMS = roundLengthMS;
             collectedItems.clear();
@@ -75,6 +77,7 @@ public class Game {
         this.participants = participants;
         for (Player player :participants.values()){
             player.snake = new Snake(itemCoordinates, collectedItems);
+            player.snake.setAcceptMovementData(true);
         }
     }
 
@@ -88,7 +91,6 @@ public class Game {
     private void progress(long now){
         Player[] players = new Player[participants.size()];
         int i = 0;
-        int deadPlayers = 0;
         int shortestLength = Integer.MAX_VALUE;
 
         Set<Map.Entry<String, Player>> entries = participants.entrySet();
@@ -99,6 +101,10 @@ public class Game {
                 if (player.snake.collided) {
                     player.snake.snakeToStartPosition();
                     player.snake.snakeMovementDataReset();
+                    if (!player.snake.isAlive()){
+                        player.snake.setAcceptMovementData(false);
+                        deadSnakes += 1;
+                    }
                 } else {
                     player.snake.move();
                     int length = player.snake.occupiedFields.size();
@@ -108,8 +114,6 @@ public class Game {
                 }
 
                 players[i++] = player;
-            } else {
-                deadPlayers += 1;
             }
         }
 
@@ -136,7 +140,7 @@ public class Game {
         }
 
         // update the scores and end the game if its over
-        if(deadPlayers == participants.size()) { //todo add -1  if we want to notify once one man standing
+        if(deadSnakes == participants.size()) { //todo add -1  if we want to notify once one man standing
             this.state = State.STOPPED;
             sendScores();
         }

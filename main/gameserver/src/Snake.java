@@ -31,7 +31,7 @@ public class Snake {
     @Expose(serialize = false, deserialize = false)
     public final transient Set<Coordinate> collectedItems; //DO NOT represent player owned items - are used to delete items from itemPositions after every iteration
     @Expose(serialize = false, deserialize = false)
-    public transient boolean doesAcceptMovementData;
+    public transient boolean doesAcceptMovementData = false;
     @Expose(serialize = false, deserialize = false)
     public transient long diedAt = 0;
 
@@ -39,9 +39,6 @@ public class Snake {
     Snake(Map<Coordinate, Item> itemPositions, Set<Coordinate> collectedItems){
         this.itemPositions = itemPositions;
         this.collectedItems = collectedItems;
-        synchronized (directionMutex) {
-            doesAcceptMovementData = true;
-        }
         snakeToStartPosition();
         snakeMovementDataReset();
     }
@@ -75,7 +72,6 @@ public class Snake {
         Coordinate head = snakeFields.getFirst();
 
         synchronized (directionMutex) {
-            doesAcceptMovementData = true;
             OpCode nextDirection = getNextFromDirectionOrLast();
 
             switch (nextDirection) {
@@ -126,20 +122,6 @@ public class Snake {
                         break;
                 }
             }
-
-            /* if we ever want to go back to the model where the snake can not circle with 4
-            if (i == null){
-                // there was no apple, last body part deleted
-                occupiedFields.remove(snakeFields.removeLast());
-            } else {
-                // no matter the item, we remove it after every snake progressed (this equally fast snakes both get it - fairness)
-                collectedItems.add(targetField);
-                if (!(i.equals(Item.Apple))) {
-                    // delete the last snake body part if we did not eat an apple
-                    occupiedFields.remove(snakeFields.removeLast());
-                }
-            }
-            */
         }
     }
 
@@ -173,7 +155,6 @@ public class Snake {
      */
     public void snakeMovementDataReset(){
         synchronized (directionMutex) {
-            doesAcceptMovementData = false;
             this.lastDirection = OpCode.UP;
             this.nextDirections = new BoundedQueue<>(2);
             this.collided = false;
@@ -210,6 +191,12 @@ public class Snake {
                         break;
                 }
             }
+        }
+    }
+
+    public void setAcceptMovementData(boolean b){
+        synchronized (directionMutex) {
+            this.doesAcceptMovementData = b;
         }
     }
 

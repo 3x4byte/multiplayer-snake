@@ -230,18 +230,15 @@ public class GameServer {
         Player caller = players.get(message.getSender());
         Lobby lobby = lobbies.get(caller.subscribedToLobbyId);
 
+        lobby.prepareGame();
         if (lobby.owner.equals(caller)) {
             // sends game go and the time interval for player deaths
             String startMessage = new WSMessage(OpCode.START_GAME_RESPONSE).jsonify();
             for (Player p : lobby.members.values()) {
                 if (p.connection.isOpen()) {
-                    //System.out.println("starting game for player + " + p.id);
                     p.connection.send(startMessage);
                 }
             }
-
-            lobby.prepareGame();
-            //executorService.submit(lobby.game.RunGame);
             new Thread(lobby.game.RunGame).start();
 
         }
