@@ -19,7 +19,7 @@ def javaServer = "GameServer"
 def javascriptServerPath = "${srcWebserver}/server.js"
 
 /* Gradles output - should not be uploaded to git, but may for live demo, so its flawless*/
-project.buildDir = '/generated'
+project.buildDir = './generated'
 
 
 /*The Java Source Directories*/
