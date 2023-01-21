@@ -2,25 +2,39 @@
 
 A multiplayer snake game built as a web engineering project.
 
-## How to run the game
-
-**Dependency:** A local Java install with set PATH variable. 
-
-The game can be run locally by starting the server via the command `./gradlew runServer` and then accessing it at `http://localhost:5000/` in your web browser.
-
 ## Gameplay
 
-In Snake Royale, up to 9 players play in a lobby, with the goal of becoming the last snake standing. Every 30 seconds, the player with the smallest snake loses one heart. The gameplay otherwise follows the traditional rules of snake.
+The main difference between the traditional Snake and Snake Royale is that, it is played in lobbies ranging from 
+2 to 9 players where apples are shared between all lobby members, meaning that only one player can eat an apple.
 
-## Contributions
+Every 30 seconds, the shortest player loses one life. Additionally, the length of all other players' snakes is reduced by the length of the shortest player to keep the gameplay dynamic.
 
-Feel free to contribute to the project by submitting pull requests or reporting any issues you may encounter. We welcome all contributions and are excited to see what the community can come up with to improve the game.
+In the sense of a battle roayale game its the players main goal to be the last snake standing, which requires
+smart path choices, good reflexes and a bit of luck. 
 
-## Disclaimer
-This project is for educational purposes only, it is not intended for any commercial use.
+If two players are tied for the shortest snake or eat an apple at the same time, the effects are applied to both players.
 
-## Enjoy playing Snake Royale!
+## Getting Started
 
----
+### Dependencies
 
-This README was created by an AI model called ChatGPT, the project owners do not claim ownership of this document.
+- Java (with the path variable set)
+- A low latency internet connection (preferably wired)
+
+### Installation
+
+1. Clone the repository and navigate to the root folder
+2. Run the gradle commands `gradlew runServer` to build and run the project
+3. Open a web browser and navigate to `http://localhost:5000` to play the game
+
+In case you want to build / run the components separately:
+- `gradlew build` builds the entire project
+- `gradlew runWebsocket` starts the websocket (gameserver)
+- `gradlew runWebserver` starts the webserver 
+
+### Stopping the game
+
++ On **Windows** it should be as simple as closing the command prompt. 
++ On **Mac** and **Linux** you may have to execute `./kill.sh` from project root to kill the websocket and webserver processes.
+
+## Enjoy the game!

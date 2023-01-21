@@ -4,7 +4,6 @@ plugins{
 }
 
 
-
 /* Project Structure */
 def srcDir = 'main'
 def srcJava = "${srcDir}/gameserver/src"
@@ -19,7 +18,7 @@ def javaServer = "GameServer"
 def javascriptServerPath = "${srcWebserver}/server.js"
 
 /* Gradles output - should not be uploaded to git, but may for live demo, so its flawless*/
-project.buildDir = '/generated'
+project.buildDir = './generated'
 
 
 /*The Java Source Directories*/
@@ -49,6 +48,7 @@ node{
     nodeProjectDir = file("${project.projectDir}/${srcJavascript}")
 }
 
+
 /* NOT PARALLELIZABLE */
 /* Runs the Game Server */
 task runWebsocket(type:JavaExec)  {
@@ -77,4 +77,13 @@ task runServer(type:Exec) {
     }
 }
 
+/* todo in case we want to have this for windows too
+task kill(type:Exec){
+	if(os.isLinux() || os.isMacOsX()) {
+		commandLine = ['./kill.sh']
+	}
+}
+ */
+
 runServer.dependsOn(["build", "npmInstall"])
+build.dependsOn(["npmInstall"])
