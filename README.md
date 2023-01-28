@@ -35,6 +35,6 @@ In case you want to build / run the components separately:
 ### Stopping the game
 
 + On **Windows** it should be as simple as closing the command prompt. 
-+ On **Mac** and **Linux** you may have to execute `./kill.sh` from project root to kill the websocket and webserver processes.
++ On **Mac** and **Linux** you have to execute the provided kill-script via `./kill.sh` from project root to stop the websocket and webserver processes.
 
 ## Enjoy the game!
