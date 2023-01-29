@@ -230,18 +230,27 @@ public class GameServer {
         Player caller = players.get(message.getSender());
         Lobby lobby = lobbies.get(caller.subscribedToLobbyId);
 
-        lobby.prepareGame();
         if (lobby.owner.equals(caller)) {
             // sends game go and the time interval for player deaths
-            String startMessage = new WSMessage(OpCode.START_GAME_RESPONSE).jsonify();
-            for (Player p : lobby.members.values()) {
-                if (p.connection.isOpen()) {
-                    p.connection.send(startMessage);
+            if (lobby.members.size() >= Lobby.MIN_LOBBY_SIZE) {
+                lobby.prepareGame();
+                String startMessage = new WSMessage(OpCode.START_GAME_RESPONSE).jsonify();
+                for (Player p : lobby.members.values()) {
+                    if (p.connection.isOpen()) {
+                        p.connection.send(startMessage);
+                    }
+                }
+                new Thread(lobby.game.RunGame).start();
+            } else {
+                // notify the owner that he can not start the lobby because there are not enough players
+                if (lobby.owner.connection.isOpen()) {
+                    String notEnoughPlayersMessage = new WSMessage(OpCode.NOT_ENOUGH_PLAYERS).jsonify();
+                    lobby.owner.connection.send(notEnoughPlayersMessage);
                 }
             }
-            new Thread(lobby.game.RunGame).start();
 
         }
+        // caller was not owner - he can not start the game
         return Optional.empty();
     }
 
