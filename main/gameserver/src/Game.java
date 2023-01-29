@@ -140,7 +140,7 @@ public class Game {
         }
 
         // update the scores and end the game if its over
-        if(deadSnakes == participants.size()) { //todo add -1  if we want to notify once one man standing
+        if(deadSnakes == participants.size() - 1) { //todo add -1  if we want to notify once one man standing
             this.state = State.STOPPED;
             sendScores();
         }

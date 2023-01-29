@@ -7,7 +7,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class Lobby {
 
     public static final int MAX_LOBBY_SIZE = 9;
-    public static final int MIN_LOBBY_SIZE = 4;
+    public static final int MIN_LOBBY_SIZE = 2;
 
     @Expose
     public final String ID;
