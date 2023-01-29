@@ -165,7 +165,7 @@ public class GameServer {
      * @return always empty optional
      */
     public Optional<WSMessage> handlePlayerMove(WSMessage message){
-        System.out.println(message.getOpcode() + " sent ");
+        //System.out.println(message.getOpcode() + " sent ");
         Player player = players.get(message.getSender());
         player.snake.changeDirection(message.getOpcode()); //gameData should not be null
         return Optional.empty();
