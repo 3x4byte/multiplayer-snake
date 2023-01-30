@@ -36,6 +36,6 @@ In case you want to build / run the components separately:
 
 + On **Windows** it should be as simple as closing the command prompt. 
 + On **Mac** and **Linux** you have to execute the provided kill-script via `./kill.sh` from project root to stop the websocket and webserver processes.
-  - when you try to kill the processes with `./kill.sh` but it returns **permission denied**, try to change the rights of the kill.sh script with `chmod 777 kill.sh`
+  - when you try to kill the processes with `./kill.sh` but it returns **permission denied**, try to change the rights of the kill.sh script with `chmod +x kill.sh`
 
 ## Enjoy the game!
