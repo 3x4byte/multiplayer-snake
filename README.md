@@ -31,6 +31,7 @@ In case you want to build / run the components separately:
 - `gradlew build` builds the entire project
 - `gradlew runWebsocket` starts the websocket (gameserver)
 - `gradlew runWebserver` starts the webserver
+
 **Note:** Since the "run*" tasks are blocking processes you will need multiple command prompts (and gradle deamons) in order to start it if you
 decide to do it this way.
 
